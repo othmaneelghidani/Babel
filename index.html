@@ -3,79 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بابل 17.0 | ريلز ووسائط حية</title>
+    <title>بابل 18.0 | الشبكة الاجتماعية</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --bg: #000; --surf: #111; --pri: #00f2ea; --sec: #ff0050; --txt: #fff; --dim: #aaa; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--txt); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        :root { --bg: #000; --surf: #111; --pri: #00f2ea; --sec: #ff0050; --txt: #fff; --dim: #888; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--txt); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* شريط التنقل السفلي للهواتف */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--surf); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; z-index: 1000; }
-        .nav-btn { background: none; border: none; color: var(--dim); cursor: pointer; display: flex; flex-direction: column; align-items: center; font-size: 0.8rem; }
+        /* شريط التنقل العلوي للملف الشخصي */
+        .top-bar { padding: 15px; background: var(--surf); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
+        
+        .content-area { flex: 1; overflow-y: auto; padding-bottom: 80px; }
+        .view { display: none; animation: fadeIn 0.3s; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* الملف الشخصي */
+        .profile-header { text-align: center; padding: 30px 20px; background: linear-gradient(to bottom, #1a1a1a, #000); }
+        .p-avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--pri); margin-bottom: 10px; }
+        .stats { display: flex; justify-content: center; gap: 30px; margin: 20px 0; }
+        .stat-item { text-align: center; }
+        .stat-num { display: block; font-weight: bold; font-size: 1.2rem; }
+
+        /* نظام الدردشة */
+        .chat-container { height: 100%; display: flex; flex-direction: column; }
+        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg { max-width: 80%; padding: 10px 15px; border-radius: 15px; font-size: 0.95rem; }
+        .msg.sent { align-self: flex-start; background: var(--pri); color: #000; border-bottom-right-radius: 2px; }
+        .msg.received { align-self: flex-end; background: #222; border-bottom-left-radius: 2px; }
+
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--surf); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #333; }
+        .nav-btn { background: none; border: none; color: var(--dim); font-size: 0.75rem; cursor: pointer; }
         .nav-btn.active { color: var(--pri); }
-
-        /* منطقة المحتوى */
-        .content-area { flex: 1; overflow-y: auto; padding-bottom: 70px; }
-        .section { display: none; }
-        .section.active { display: block; }
-
-        /* تصميم الريلز (Reels) */
-        .reels-container { height: calc(100vh - 60px); scroll-snap-type: y mandatory; overflow-y: scroll; scrollbar-width: none; }
-        .reel-video { height: 100vh; scroll-snap-align: start; position: relative; display: flex; align-items: center; justify-content: center; background: #000; }
-        .reel-video video { width: 100%; height: 100%; object-fit: cover; }
-        .reel-info { position: absolute; bottom: 80px; right: 20px; text-align: right; text-shadow: 2px 2px 10px rgba(0,0,0,0.8); }
-        .reel-actions { position: absolute; bottom: 100px; left: 15px; display: flex; flex-direction: column; gap: 20px; }
-
-        /* صندوق النشر */
-        .create-post { background: var(--surf); margin: 15px; padding: 15px; border-radius: 15px; border: 1px solid var(--pri); }
-        textarea { width: 100%; background: transparent; border: none; color: #fff; outline: none; resize: none; font-size: 1.1rem; }
-        .media-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 10px; margin-top: 10px; display: none; }
         
         /* المنشورات */
-        .post-card { background: var(--surf); margin: 15px; padding: 15px; border-radius: 15px; border: 1px solid #222; }
-        .post-media { width: 100%; border-radius: 10px; margin-top: 10px; border: 1px solid #333; }
-
-        /* الفيديو كول */
-        #video-overlay { position: fixed; inset: 0; background: #000; z-index: 2000; display: none; flex-direction: column; }
-        video#local-v { width: 100px; height: 150px; position: absolute; top: 20px; left: 20px; border: 2px solid var(--pri); border-radius: 10px; object-fit: cover; z-index: 10; }
-        video#remote-v { width: 100%; height: 100%; object-fit: cover; }
+        .post-card { background: var(--surf); margin: 15px; padding: 15px; border-radius: 15px; border-right: 4px solid var(--pri); }
+        .follow-btn { background: var(--pri); color: #000; border: none; padding: 5px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
+    <div class="top-bar">
+        <div id="current-view-title" style="font-weight: bold; color: var(--pri);">الساحة العامة</div>
+        <div onclick="showView('profile', this)" style="cursor:pointer">👤</div>
+    </div>
+
     <div class="content-area">
-        <div id="sec-home" class="section active">
-            <h2 style="padding: 15px; color: var(--pri);">بـابـل 17.0 👁️</h2>
-            <div class="create-post">
-                <textarea id="post-text" placeholder="انشر فيديو، صورة، أو نصاً حياً..."></textarea>
-                <img id="p-preview" class="media-preview">
-                <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <label style="cursor: pointer; background: #333; padding: 5px 15px; border-radius: 20px;">
-                        🖼️ وسائط <input type="file" id="file-in" hidden onchange="handleFile(event)">
-                    </label>
-                    <button onclick="publishPost()" style="background: var(--pri); border: none; padding: 5px 20px; border-radius: 20px; font-weight: bold; margin-right: auto;">نشر 🚀</button>
-                </div>
-            </div>
+        <div id="view-home" class="view active">
             <div id="posts-feed"></div>
         </div>
 
-        <div id="sec-reels" class="section">
-            <div class="reels-container" id="reels-feed">
+        <div id="view-profile" class="view">
+            <div class="profile-header">
+                <div class="p-avatar" id="prof-img">👤</div>
+                <h2 id="prof-name">المُبتكر</h2>
+                <div class="stats">
+                    <div class="stat-item"><span class="stat-num">150</span> متابِع</div>
+                    <div class="stat-item"><span class="stat-num">89</span> منشور</div>
                 </div>
+                <button class="follow-btn" id="main-follow-btn">متابعة +</button>
+            </div>
+            <div id="user-posts"></div>
+        </div>
+
+        <div id="view-chat" class="view" style="height: 80vh;">
+            <div class="chat-container">
+                <div class="chat-messages" id="chat-box">
+                    <div style="text-align:center; color:#555;">اختر مستخدماً لبدء المحادثة...</div>
+                </div>
+                <div style="padding:15px; display:flex; gap:10px;">
+                    <input type="text" id="chat-in" style="flex:1; background:#222; border:none; color:#fff; padding:10px; border-radius:20px; outline:none;" placeholder="اكتب رسالة سرية...">
+                    <button onclick="sendDirectMsg()" style="background:var(--pri); border:none; width:40px; height:40px; border-radius:50%;">🚀</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="bottom-nav">
-        <button class="nav-btn active" onclick="showSec('home', this)">🏠<span>الرئيسية</span></button>
-        <button class="nav-btn" onclick="showSec('reels', this)">🎬<span>ريلز</span></button>
-        <button class="nav-btn" onclick="startCall()">📞<span>اتصال</span></button>
-    </div>
-
-    <div id="video-overlay">
-        <video id="local-v" autoplay muted></video>
-        <video id="remote-v" autoplay></video>
-        <button onclick="endCall()" style="position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); background: red; color: white; border: none; width: 60px; height: 60px; border-radius: 50%; font-size: 1.5rem;">❌</button>
+        <button class="nav-btn active" onclick="showView('home', this)">🏠<br>الرئيسية</button>
+        <button class="nav-btn" onclick="alert('قسم الريلز مدمج في الرئيسية الآن!')">🎬<br>ريلز</button>
+        <button class="nav-btn" onclick="showView('chat', this)">💬<br>رسائل</button>
+        <button class="nav-btn" onclick="showView('profile', this)">👤<br>أنا</button>
     </div>
 
     <script>
@@ -90,87 +98,77 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let mediaData = null, mediaType = null;
+        
+        const myID = "user_" + Math.floor(Math.random() * 1000); // معرف وهمي للاختبار
+        const myName = "المُبتكر";
+        let activeChatPartner = null;
 
-        function handleFile(e) {
-            const file = e.target.files[0];
-            mediaType = file.type.split('/')[0];
-            const reader = new FileReader();
-            reader.onload = () => {
-                mediaData = reader.result;
-                const preview = document.getElementById('p-preview');
-                preview.src = mediaData;
-                preview.style.display = 'block';
-            };
-            reader.readAsDataURL(file);
+        // --- وظائف الواجهة ---
+        function showView(id, btn) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById('view-' + id).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+            document.getElementById('current-view-title').innerText = id.toUpperCase();
         }
 
-        function publishPost() {
-            const text = document.getElementById('post-text').value;
-            if(!text && !mediaData) return;
-            db.ref('posts').push({
-                author: "المُبتكر",
-                content: text,
-                media: mediaData,
-                type: mediaType,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-            document.getElementById('post-text').value = '';
-            document.getElementById('p-preview').style.display = 'none';
-            mediaData = null;
-        }
-
+        // --- جلب المنشورات والملفات الشخصية ---
         db.ref('posts').on('value', snap => {
-            const postsFeed = document.getElementById('posts-feed');
-            const reelsFeed = document.getElementById('reels-feed');
-            postsFeed.innerHTML = ''; reelsFeed.innerHTML = '';
-            
+            const feed = document.getElementById('posts-feed');
+            feed.innerHTML = '';
             snap.forEach(child => {
                 const p = child.val();
-                // إضافة للمنشورات العادية
-                postsFeed.innerHTML = `
+                feed.innerHTML = `
                     <div class="post-card">
-                        <strong>👤 ${p.author}</strong>
-                        <p>${p.content}</p>
-                        ${p.media && p.type === 'image' ? `<img src="${p.media}" class="post-media">` : ''}
-                        ${p.media && p.type === 'video' ? `<video src="${p.media}" class="post-media" controls></video>` : ''}
-                    </div>
-                ` + postsFeed.innerHTML;
-
-                // إضافة للريلز إذا كان فيديو
-                if(p.media && p.type === 'video') {
-                    reelsFeed.innerHTML += `
-                        <div class="reel-video">
-                            <video src="${p.media}" loop onclick="this.paused ? this.play() : this.pause()"></video>
-                            <div class="reel-info">
-                                <h3>@${p.author}</h3>
-                                <p>${p.content}</p>
-                            </div>
-                            <div class="reel-actions">
-                                <span>❤️</span><span>💬</span><span>🚀</span>
-                            </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong onclick="openProfile('${p.author}')" style="cursor:pointer; color:var(--pri);">@${p.author}</strong>
+                            <button class="follow-btn" style="font-size:0.7rem;" onclick="openChat('${p.author}')">رسالة ✉️</button>
                         </div>
-                    `;
-                }
+                        <p>${p.content}</p>
+                        ${p.media ? `<img src="${p.media}" style="width:100%; border-radius:10px;">` : ''}
+                    </div>
+                ` + feed.innerHTML;
             });
         });
 
-        function showSec(id, btn) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById('sec-' + id).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+        function openProfile(name) {
+            document.getElementById('prof-name').innerText = name;
+            showView('profile');
         }
 
-        let stream;
-        async function startCall() {
-            document.getElementById('video-overlay').style.display = 'flex';
-            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            document.getElementById('local-v').srcObject = stream;
+        // --- نظام الدردشة المباشرة (Direct Messages) ---
+        function openChat(partner) {
+            activeChatPartner = partner;
+            document.getElementById('current-view-title').innerText = "دردشة مع " + partner;
+            showView('chat');
+            listenToMessages();
         }
-        function endCall() {
-            if(stream) stream.getTracks().forEach(t => t.stop());
-            document.getElementById('video-overlay').style.display = 'none';
+
+        function sendDirectMsg() {
+            const text = document.getElementById('chat-in').value;
+            if(!text || !activeChatPartner) return;
+            
+            const chatId = [myName, activeChatPartner].sort().join("_");
+            db.ref('chats/' + chatId).push({
+                sender: myName,
+                text: text,
+                time: firebase.database.ServerValue.TIMESTAMP
+            });
+            document.getElementById('chat-in').value = '';
+        }
+
+        function listenToMessages() {
+            const chatId = [myName, activeChatPartner].sort().join("_");
+            db.ref('chats/' + chatId).on('value', snap => {
+                const box = document.getElementById('chat-box');
+                box.innerHTML = '';
+                snap.forEach(child => {
+                    const m = child.val();
+                    const type = m.sender === myName ? 'sent' : 'received';
+                    box.innerHTML += `<div class="msg ${type}">${m.text}</div>`;
+                });
+                box.scrollTop = box.scrollHeight;
+            });
         }
     </script>
 </body>
