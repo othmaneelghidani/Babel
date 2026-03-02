@@ -3,182 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Babel Infinite | 100% السيادة الرقمية</title>
+    <title>Babel 20.0 | الهوية العالمية</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <style>
-        /* --- التصميم الإمبراطوري (Neo-Dark Design) --- */
         :root {
             --bg: #000; --surf: #0a0a0a; --pri: #00ffcc; --sec: #bc13fe; 
-            --gold: #ffd700; --txt: #fff; --dim: #777; --brd: #1a1a1a;
-            --glass: rgba(10, 10, 10, 0.8);
+            --gold: #ffd700; --txt: #fff; --brd: #1a1a1a; --glass: rgba(15, 15, 15, 0.9);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; scrollbar-width: none; }
-        body { 
-            font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); 
-            color: var(--txt); height: 100vh; overflow: hidden; display: flex; flex-direction: column;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--txt); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-        /* شاشة الدخول المقدسة */
-        #auth-portal {
-            position: fixed; inset: 0; background: radial-gradient(circle at center, #1a0b2e 0%, #000 100%);
-            z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center;
-        }
-        .portal-card {
-            background: var(--glass); border: 2px solid var(--pri); padding: 50px 30px;
-            border-radius: 40px; text-align: center; backdrop-filter: blur(20px);
-            box-shadow: 0 0 60px rgba(0, 255, 204, 0.2); width: 90%; max-width: 400px;
-        }
-        .g-login-btn {
-            background: #fff; color: #000; border: none; padding: 15px 30px; border-radius: 30px;
-            font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 12px;
-            margin-top: 30px; width: 100%; justify-content: center; font-size: 1rem;
-        }
+        /* شاشة الدخول الفخمة */
+        #auth-gate { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; justify-content: center; align-items: center; text-align: center; }
+        .gate-card { border: 1px solid var(--pri); padding: 40px; border-radius: 30px; background: radial-gradient(circle, #111, #000); width: 90%; max-width: 400px; }
+        .g-btn { background: #fff; color: #000; border: none; padding: 12px 25px; border-radius: 30px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; margin: 20px auto; }
 
-        /* الهيكل العام للمنصة */
-        .app-header {
-            padding: 15px 20px; background: #000; border-bottom: 1px solid var(--brd);
-            display: flex; justify-content: space-between; align-items: center; z-index: 1000;
-        }
-        .user-pill { display: flex; align-items: center; gap: 10px; background: #111; padding: 5px 12px; border-radius: 25px; border: 1px solid var(--brd); }
-        .user-pill img { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--pri); }
-        .gold-pill { color: var(--gold); font-weight: bold; font-size: 0.9rem; border: 1px solid var(--gold); padding: 5px 15px; border-radius: 20px; }
+        /* الهيدر مع محرك البحث */
+        .top-nav { padding: 10px 20px; background: var(--glass); border-bottom: 1px solid var(--brd); display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; }
+        .search-bar { flex: 1; position: relative; }
+        .search-bar input { width: 100%; background: #111; border: 1px solid #222; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; outline: none; font-size: 0.9rem; }
+        .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--dim); }
 
-        .main-stage { flex: 1; overflow-y: auto; padding-bottom: 90px; scroll-behavior: smooth; }
-        .tab-content { display: none; width: 100%; }
-        .tab-content.active { display: block; animation: slideIn 0.4s ease; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* منطقة العرض */
+        .viewport { flex: 1; overflow-y: auto; padding-bottom: 80px; }
+        .page { display: none; } .page.active { display: block; animation: slideUp 0.3s; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* تيك توك / ريلز ستايل */
-        .reel-frame { 
-            height: calc(100vh - 140px); width: 100%; scroll-snap-align: start; 
-            position: relative; background: #000; display: flex; align-items: center;
-        }
-        .reel-video { width: 100%; height: 100%; object-fit: cover; }
-        .reel-overlay { position: absolute; bottom: 20px; right: 20px; text-align: right; z-index: 10; width: 80%; }
-        .reel-side-actions { position: absolute; bottom: 100px; left: 15px; display: flex; flex-direction: column; gap: 20px; align-items: center; }
+        /* كرت الملف الشخصي المطور */
+        .profile-header { background: linear-gradient(to bottom, #111, #000); padding: 50px 20px; text-align: center; border-bottom: 1px solid var(--brd); position: relative; }
+        .edit-btn { position: absolute; top: 20px; left: 20px; background: var(--brd); border: none; color: #fff; padding: 5px 15px; border-radius: 15px; font-size: 0.8rem; cursor: pointer; }
+        .p-avatar { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--pri); box-shadow: 0 0 20px rgba(0,255,204,0.2); margin-bottom: 15px; }
+        .p-bio { color: var(--dim); font-size: 0.9rem; margin-top: 10px; line-height: 1.4; max-width: 300px; margin-inline: auto; }
 
-        /* المنشورات الكلاسيكية */
-        .post-card { background: var(--surf); margin: 15px; border-radius: 20px; border: 1px solid var(--brd); overflow: hidden; }
-        .post-top { padding: 15px; display: flex; align-items: center; gap: 12px; }
-        .post-pfp { width: 40px; height: 40px; border-radius: 50%; }
-        .post-content { padding: 0 15px 15px; line-height: 1.6; }
-        .post-media { width: 100%; max-height: 450px; object-fit: cover; }
+        /* مودال التعديل (Modal) */
+        #edit-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 20000; display: none; justify-content: center; align-items: center; }
+        .modal-box { background: var(--surf); border: 1px solid var(--pri); padding: 30px; border-radius: 25px; width: 90%; max-width: 400px; }
+        .modal-box input, .modal-box textarea { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 15px; margin-bottom: 15px; outline: none; }
 
-        /* نظام الدردشة والأوراكل */
-        .chat-portal { display: flex; flex-direction: column; height: 100%; }
-        #messages-flow { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .bubble { padding: 12px 18px; border-radius: 22px; max-width: 85%; font-size: 0.95rem; line-height: 1.5; }
-        .bubble.me { align-self: flex-start; background: var(--pri); color: #000; border-bottom-right-radius: 4px; }
-        .bubble.oracle { align-self: center; background: rgba(188, 19, 254, 0.1); border: 1px solid var(--sec); color: var(--sec); text-align: center; font-style: italic; }
+        /* المنشورات */
+        .post { background: var(--surf); margin: 15px; padding: 15px; border-radius: 18px; border: 1px solid var(--brd); }
+        .post-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; }
+        .post-head img { width: 35px; height: 35px; border-radius: 50%; }
+        .post-media { width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid #111; }
 
-        /* صندوق الإدخال الذكي */
-        .input-hub { padding: 20px; background: #000; border-top: 1px solid var(--brd); display: flex; gap: 12px; }
-        .input-hub input { flex: 1; background: #111; border: 1px solid #222; color: #fff; padding: 14px 20px; border-radius: 30px; outline: none; }
-        .send-btn { background: var(--pri); border: none; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-
-        /* شريط الإشعارات العلوي */
-        #notify-toast {
-            position: fixed; top: 75px; left: 50%; transform: translateX(-50%);
-            background: var(--pri); color: #000; padding: 8px 25px; border-radius: 30px;
-            font-weight: bold; font-size: 0.85rem; z-index: 2000; display: none; box-shadow: 0 5px 20px rgba(0,255,204,0.4);
-        }
-
-        /* شريط التنقل السفلي */
-        .nav-dock { 
-            position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.95); 
-            border-top: 1px solid #222; display: flex; justify-content: space-around; 
-            padding: 15px 0; backdrop-filter: blur(15px); z-index: 1000;
-        }
-        .nav-tab { background: none; border: none; color: #444; font-size: 1.5rem; cursor: pointer; position: relative; }
-        .nav-tab.active { color: var(--pri); filter: drop-shadow(0 0 8px var(--pri)); }
-
-        /* الملف الشخصي الملكي */
-        .profile-hero { text-align: center; padding: 40px 20px; background: linear-gradient(to bottom, #111, #000); }
-        .big-avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--pri); box-shadow: 0 0 30px rgba(0,255,204,0.3); }
-
-        /* أدوات النشر */
-        .creator-box { background: var(--surf); margin: 15px; border-radius: 25px; padding: 20px; border: 1px dashed var(--pri); }
-        .creator-box textarea { width: 100%; background: transparent; border: none; color: #fff; outline: none; font-size: 1.1rem; resize: none; }
+        /* شريط التنقل */
+        .bottom-dock { position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.95); border-top: 1px solid #222; display: flex; justify-content: space-around; padding: 15px 0; }
+        .dock-btn { background: none; border: none; color: #444; font-size: 1.4rem; cursor: pointer; }
+        .dock-btn.active { color: var(--pri); transform: translateY(-5px); text-shadow: 0 0 10px var(--pri); }
     </style>
 </head>
 <body>
 
-    <div id="auth-portal">
-        <div class="portal-card">
-            <h1 style="color:var(--pri); font-size:3.5rem; margin:0; letter-spacing:-2px;">Babel</h1>
-            <p style="color:var(--dim); font-size:1.1rem;">أنت الآن على وشك دخول الإمبراطورية</p>
-            <button class="g-login-btn" onclick="signInWithGoogle()">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20">
-                تسجيل الدخول عبر Google
+    <div id="auth-gate">
+        <div class="gate-card">
+            <h1 style="color:var(--pri); font-size:2.8rem; margin:0;">Babel</h1>
+            <p style="color:#555;">أنشئ هويتك العالمية الآن</p>
+            <button class="g-btn" onclick="login()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
+                الدخول عبر Google
             </button>
-            <p id="portal-msg" style="font-size:0.8rem; color:#333; margin-top:20px;">يرجى تفعيل Google Auth في Firebase أولاً</p>
         </div>
     </div>
 
-    <div id="notify-toast">نظام بابل متصل الآن ✨</div>
-
-    <header class="app-header">
-        <div class="user-pill">
-            <img src="" id="nav-pfp">
-            <span id="nav-user" style="font-weight:bold; font-size:0.85rem;">زائر</span>
+    <header class="top-nav">
+        <div style="font-weight:bold; color:var(--pri); font-size:1.2rem;">👁️</div>
+        <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-input" placeholder="ابحث عن مستخدمين..." oninput="searchUsers()">
         </div>
-        <div class="gold-pill">🪙 <span id="coin-total">1000</span></div>
+        <div id="search-results" style="position:absolute; top:60px; left:20px; right:20px; background:#111; border-radius:15px; z-index:1000;"></div>
     </header>
 
-    <main class="main-stage">
-        
-        <div id="tab-home" class="tab-content active">
-            <div class="creator-box">
-                <textarea id="input-post" placeholder="انشر سحرك البرمجي هنا..."></textarea>
-                <div style="display:flex; justify-content:space-between; margin-top:15px; align-items:center;">
-                    <label style="cursor:pointer; color:var(--dim); font-size:0.8rem;">🖼️ إضافة وسائط <input type="file" id="media-pick" hidden onchange="prepMedia(event)"></label>
-                    <button onclick="sendToFirebase()" style="background:var(--pri); border:none; padding:8px 30px; border-radius:25px; font-weight:bold; cursor:pointer;">بث حي 🚀</button>
+    <main class="viewport">
+        <div id="p-home" class="page active">
+            <div style="padding:15px; border-bottom:1px solid #111;">
+                <textarea id="post-txt" style="width:100%; background:transparent; border:none; color:#fff; font-size:1.1rem; outline:none;" placeholder="ما الجديد في عالمك؟..."></textarea>
+                <div style="display:flex; justify-content:space-between; margin-top:10px;">
+                    <label style="cursor:pointer; font-size:0.8rem; color:#555;">🖼️ ميديا <input type="file" id="media-in" hidden onchange="loadMedia(event)"></label>
+                    <button onclick="publish()" style="background:var(--pri); border:none; padding:6px 20px; border-radius:20px; font-weight:bold;">بث 🚀</button>
                 </div>
             </div>
-            <div id="infinite-feed"></div>
+            <div id="feed"></div>
         </div>
 
-        <div id="tab-chat" class="tab-content" style="height: 100%;">
-            <div class="chat-portal">
-                <div id="messages-flow">
-                    <div class="bubble oracle">أهلاً بك يا <span id="oracle-user">...</span>. لقد تم توثيق وجودك في سجلات بابل الحقيقية.</div>
-                </div>
-                <div class="input-hub">
-                    <input type="text" id="chat-txt" placeholder="تحدث مع الأوراكل أو سكان البعد...">
-                    <button class="send-btn" onclick="askOracle()">👁️</button>
+        <div id="p-profile" class="page">
+            <div class="profile-header">
+                <button class="edit-btn" id="edit-trigger" onclick="openEdit()">تعديل ⚙️</button>
+                <img src="" class="p-avatar" id="pf-img">
+                <h2 id="pf-name" style="margin:0;">اسم المستخدم</h2>
+                <div style="color:var(--gold); font-size:0.8rem;">نخبة بابل 🔱</div>
+                <p class="p-bio" id="pf-bio">لا يوجد وصف بعد..</p>
+                <div style="margin-top:20px; display:flex; justify-content:center; gap:20px; font-size:0.9rem;">
+                    <div><b>150</b> متابع</div>
+                    <div><b>90</b> منشور</div>
                 </div>
             </div>
+            <div id="user-posts-list"></div>
         </div>
-
-        <div id="tab-profile" class="tab-content">
-            <div class="profile-hero">
-                <img src="" class="big-avatar" id="hero-pfp">
-                <h2 id="hero-name" style="margin:10px 0 5px;">اسم المستخدم</h2>
-                <div style="color:var(--gold); font-size:0.9rem;">الرتبة: نخبة بابل 🔱</div>
-                <div style="display:flex; justify-content:center; gap:30px; margin-top:25px;">
-                    <div><b style="display:block; font-size:1.2rem;">+240</b> متابع</div>
-                    <div><b style="display:block; font-size:1.2rem;">100%</b> برمجية</div>
-                </div>
-                <button onclick="signOut()" style="margin-top:40px; background:transparent; border:1px solid #333; color:red; padding:10px 30px; border-radius:25px; cursor:pointer;">تسجيل الخروج</button>
-            </div>
-        </div>
-
     </main>
 
-    <nav class="nav-dock">
-        <button class="nav-tab active" onclick="goTab('home', this)">🏠</button>
-        <button class="nav-tab" onclick="goTab('chat', this)">💬</button>
-        <button class="nav-tab" onclick="goTab('profile', this)">👤</button>
+    <div id="edit-modal">
+        <div class="modal-box">
+            <h3 style="margin-top:0;">تعديل الملف الشخصي</h3>
+            <input type="text" id="edit-name" placeholder="الاسم الجديد">
+            <textarea id="edit-bio" placeholder="وصفك الشخصي (Bio)" rows="3"></textarea>
+            <div style="display:flex; gap:10px;">
+                <button onclick="saveProfile()" style="flex:1; background:var(--pri); border:none; padding:10px; border-radius:15px; font-weight:bold;">حفظ</button>
+                <button onclick="document.getElementById('edit-modal').style.display='none'" style="flex:1; background:#222; border:none; color:#fff; border-radius:15px;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-dock">
+        <button class="dock-btn active" onclick="goTab('home', this)">🏠</button>
+        <button class="dock-btn" onclick="alert('قسم الريلز مدمج في التايملاين!')">🎬</button>
+        <button class="dock-btn" onclick="goMyProfile(this)">👤</button>
     </nav>
 
     <script>
-        // --- تهيئة إمبراطورية بابل ---
-        const config = {
+        // --- تهيئة Firebase ---
+        const firebaseConfig = {
             apiKey: "AIzaSyCLEkACbZT1gMs9BGkiuxJxSvsHJGKTryk",
             authDomain: "babel-e12d7.firebaseapp.com",
             databaseURL: "https://babel-e12d7-default-rtdb.firebaseio.com",
@@ -187,125 +136,148 @@
             messagingSenderId: "825559802990",
             appId: "1:825559802990:web:07446bfa45edf3358d327f"
         };
-        firebase.initializeApp(config);
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const auth = firebase.auth();
-        const provider = new firebase.auth.GoogleAuthProvider();
 
-        let me = { name: "", photo: "", coins: 1000 };
-        let blob = null, bType = "";
+        let user = null, currentMedia = null;
 
-        // --- نظام جوجل الموثق ---
-        function signInWithGoogle() {
-            document.getElementById('portal-msg').innerText = "جاري فتح بوابات جوجل...";
+        // --- نظام تسجيل الدخول ---
+        function login() {
+            const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider).then(res => {
-                enterApp(res.user);
-            }).catch(e => {
-                alert("فشل العبور: " + e.message);
-                document.getElementById('portal-msg').innerText = "خطأ! تأكد من تفعيل Google في Firebase.";
+                user = res.user;
+                setupUser(user);
             });
         }
 
-        function enterApp(u) {
-            me.name = u.displayName;
-            me.photo = u.photoURL;
-            document.getElementById('nav-user').innerText = me.name;
-            document.getElementById('nav-pfp').src = me.photo;
-            document.getElementById('hero-name').innerText = me.name;
-            document.getElementById('hero-pfp').src = me.photo;
-            document.getElementById('oracle-user').innerText = me.name;
-            document.getElementById('auth-portal').style.display = 'none';
-            toast("أهلاً بك في البعد الحقيقي يا " + me.name);
-            startListening();
+        function setupUser(u) {
+            // حفظ بيانات المستخدم في السيرفر ليكون قابلاً للبحث
+            db.ref('users/' + u.uid).update({
+                name: u.displayName,
+                photo: u.photoURL,
+                email: u.email,
+                lastSeen: firebase.database.ServerValue.TIMESTAMP
+            });
+            document.getElementById('auth-gate').style.display = 'none';
+            checkUrlParams();
+            loadFeed();
         }
 
-        auth.onAuthStateChanged(u => { if(u) enterApp(u); });
-        function signOut() { auth.signOut().then(() => location.reload()); }
+        auth.onAuthStateChanged(u => { if(u) setupUser(u); });
 
-        // --- إدارة الوسائط والنشر ---
-        function prepMedia(e) {
-            const f = e.target.files[0];
-            bType = f.type.split('/')[0];
-            const r = new FileReader();
-            r.onload = () => { blob = r.result; toast("تم تجهيز " + bType + " للبث!"); };
-            r.readAsDataURL(f);
+        // --- نظام النشر العالمي (يظهر للجميع) ---
+        function loadMedia(e) {
+            const reader = new FileReader();
+            reader.onload = () => currentMedia = reader.result;
+            reader.readAsDataURL(e.target.files[0]);
         }
 
-        function sendToFirebase() {
-            const t = document.getElementById('input-post').value;
-            if(!t && !blob) return;
-            db.ref('babel_infinite').push({
-                user: me.name, pfp: me.photo, txt: t,
-                media: blob, mType: bType, gifts: 0,
+        function publish() {
+            const txt = document.getElementById('post-txt').value;
+            if(!txt && !currentMedia) return;
+            db.ref('global_posts').push({
+                uid: user.uid,
+                name: user.displayName,
+                pfp: user.photoURL,
+                content: txt,
+                media: currentMedia,
                 time: firebase.database.ServerValue.TIMESTAMP
             });
-            document.getElementById('input-post').value = '';
-            blob = null; toast("تم البث بنجاح! 📡");
+            document.getElementById('post-txt').value = '';
+            currentMedia = null;
         }
 
-        // --- المزامنة الحية ---
-        function startListening() {
-            db.ref('babel_infinite').limitToLast(50).on('value', snap => {
-                const feed = document.getElementById('infinite-feed');
+        function loadFeed() {
+            db.ref('global_posts').limitToLast(50).on('value', snap => {
+                const feed = document.getElementById('feed');
                 feed.innerHTML = '';
-                snap.forEach(c => {
-                    const p = c.val();
+                snap.forEach(child => {
+                    const p = child.val();
                     feed.innerHTML = `
-                        <div class="post-card">
-                            <div class="post-top">
-                                <img src="${p.pfp}" class="post-pfp">
-                                <b style="color:var(--pri)">@${p.user}</b>
-                                <small style="color:#222; margin-right:auto;">${new Date(p.time).toLocaleTimeString()}</small>
+                        <div class="post">
+                            <div class="post-head" onclick="viewProfile('${p.uid}')">
+                                <img src="${p.pfp}">
+                                <b>${p.name}</b>
                             </div>
-                            <div class="post-content">${p.txt}</div>
-                            ${p.media && p.mType === 'image' ? `<img src="${p.media}" class="post-media">` : ''}
-                            ${p.media && p.mType === 'video' ? `<video src="${p.media}" class="post-media" controls loop></video>` : ''}
-                            <div style="padding:10px 15px; border-top:1px solid #111; display:flex; gap:15px;">
-                                <span onclick="toast('أرسلت هدية!')" style="cursor:pointer">🎁 ${p.gifts || 0}</span>
-                                <span style="cursor:pointer">❤️</span>
-                            </div>
+                            <div style="font-size:0.95rem;">${p.content}</div>
+                            ${p.media ? `<img src="${p.media}" class="post-media">` : ''}
                         </div>
                     ` + feed.innerHTML;
                 });
             });
         }
 
-        // --- حوار الأوراكل ---
-        function askOracle() {
-            const i = document.getElementById('chat-txt');
-            if(!i.value) return;
-            const log = document.getElementById('messages-flow');
-            log.innerHTML += `<div class="bubble me">${i.value}</div>`;
-            
-            const wisdom = [
-                "كل سطر برمجي تكتبه هو طلسوم يغير واقعك يا " + me.name,
-                "رأيت في الداتابيز أن هويتك الحقيقية ستشع في سماء بابل.",
-                "لا تخف من الـ Bugs، فهي مجرد تحديات لذكائك.",
-                "بابل هو انعكاس لروحك المبتكرة."
-            ];
-
-            setTimeout(() => {
-                const a = wisdom[Math.floor(Math.random()*wisdom.length)];
-                log.innerHTML += `<div class="bubble oracle">${a}</div>`;
-                log.scrollTop = log.scrollHeight;
-                toast("الأوراكل منحك بصيرة جديدة!");
-            }, 800);
-            i.value = '';
+        // --- نظام الملف الشخصي والروابط (u=UID) ---
+        function viewProfile(uid) {
+            window.history.pushState({}, '', '?u=' + uid);
+            renderProfile(uid);
+            goTab('profile');
         }
 
-        // --- التحكم بالتبويبات ---
+        function renderProfile(uid) {
+            db.ref('users/' + uid).once('value', snap => {
+                const d = snap.val();
+                document.getElementById('pf-img').src = d.photo;
+                document.getElementById('pf-name').innerText = d.name;
+                document.getElementById('pf-bio').innerText = d.bio || "لا يوجد وصف..";
+                
+                // إظهار زر التعديل فقط إذا كان هذا حسابي
+                document.getElementById('edit-trigger').style.display = (user.uid === uid) ? 'block' : 'none';
+            });
+        }
+
+        function checkUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            const u = params.get('u');
+            if(u) renderProfile(u);
+        }
+
+        // --- تعديل الملف الشخصي ---
+        function openEdit() {
+            document.getElementById('edit-modal').style.display = 'flex';
+            document.getElementById('edit-name').value = user.displayName;
+        }
+
+        function saveProfile() {
+            const newName = document.getElementById('edit-name').value;
+            const newBio = document.getElementById('edit-bio').value;
+            db.ref('users/' + user.uid).update({ name: newName, bio: newBio });
+            document.getElementById('edit-modal').style.display = 'none';
+            renderProfile(user.uid);
+        }
+
+        // --- نظام البحث ---
+        function searchUsers() {
+            const q = document.getElementById('search-input').value.toLowerCase();
+            const resDiv = document.getElementById('search-results');
+            if(!q) { resDiv.innerHTML = ''; return; }
+
+            db.ref('users').orderByChild('name').startAt(q).limitToFirst(5).once('value', snap => {
+                resDiv.innerHTML = '';
+                snap.forEach(c => {
+                    const u = c.val();
+                    resDiv.innerHTML += `
+                        <div style="padding:10px; border-bottom:1px solid #222; display:flex; align-items:center; gap:10px;" onclick="viewProfile('${c.key}')">
+                            <img src="${u.photo}" width="30" style="border-radius:50%">
+                            <span>${u.name}</span>
+                        </div>`;
+                });
+            });
+        }
+
         function goTab(id, btn) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-' + id).classList.add('active');
-            document.querySelectorAll('.nav-tab').forEach(n => n.classList.remove('active'));
-            btn.classList.add('active');
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('p-' + id).classList.add('active');
+            if(btn) {
+                document.querySelectorAll('.dock-btn').forEach(d => d.classList.remove('active'));
+                btn.classList.add('active');
+            }
         }
 
-        function toast(m) {
-            const t = document.getElementById('notify-toast');
-            t.innerText = "✨ " + m;
-            t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 3000);
+        function goMyProfile(btn) {
+            viewProfile(user.uid);
+            goTab('profile', btn);
         }
     </script>
 </body>
