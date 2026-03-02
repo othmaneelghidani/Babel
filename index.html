@@ -3,87 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بابل 18.0 | الشبكة الاجتماعية</title>
+    <title>Babel Prime | 100% Final Edition</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --bg: #000; --surf: #111; --pri: #00f2ea; --sec: #ff0050; --txt: #fff; --dim: #888; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--txt); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        :root { --bg: #020202; --surf: #0a0a0a; --pri: #00ffcc; --sec: #bc13fe; --gold: #ffd700; --txt: #fff; --brd: #1a1a1a; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--txt); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         
-        /* شريط التنقل العلوي للملف الشخصي */
-        .top-bar { padding: 15px; background: var(--surf); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
-        
+        /* شريط العملات والاشعارات */
+        .prime-bar { background: #000; padding: 10px 20px; border-bottom: 2px solid var(--pri); display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
+        .coin-badge { background: linear-gradient(45deg, #444, #000); border: 1px solid var(--gold); padding: 5px 15px; border-radius: 20px; color: var(--gold); font-weight: bold; font-size: 0.9rem; }
+        #notify-msg { color: var(--pri); font-size: 0.8rem; font-style: italic; }
+
         .content-area { flex: 1; overflow-y: auto; padding-bottom: 80px; }
-        .view { display: none; animation: fadeIn 0.3s; }
-        .view.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .view { display: none; } .view.active { display: block; }
 
-        /* الملف الشخصي */
-        .profile-header { text-align: center; padding: 30px 20px; background: linear-gradient(to bottom, #1a1a1a, #000); }
-        .p-avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--pri); margin-bottom: 10px; }
-        .stats { display: flex; justify-content: center; gap: 30px; margin: 20px 0; }
-        .stat-item { text-align: center; }
-        .stat-num { display: block; font-weight: bold; font-size: 1.2rem; }
+        /* الملف الشخصي الملكي */
+        .profile-card { background: linear-gradient(135deg, #111 0%, #000 100%); padding: 40px 20px; text-align: center; border-bottom: 1px solid var(--brd); }
+        .avatar-ring { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--pri); margin: 0 auto 15px; padding: 5px; box-shadow: 0 0 20px rgba(0,255,204,0.3); }
 
-        /* نظام الدردشة */
-        .chat-container { height: 100%; display: flex; flex-direction: column; }
-        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg { max-width: 80%; padding: 10px 15px; border-radius: 15px; font-size: 0.95rem; }
-        .msg.sent { align-self: flex-start; background: var(--pri); color: #000; border-bottom-right-radius: 2px; }
-        .msg.received { align-self: flex-end; background: #222; border-bottom-left-radius: 2px; }
+        /* نظام الدردشة مع "الأوراكل" */
+        .chat-view { height: calc(100vh - 150px); display: flex; flex-direction: column; }
+        #chat-log { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .bubble { padding: 12px 18px; border-radius: 20px; max-width: 80%; font-size: 0.95rem; line-height: 1.4; }
+        .oracle { align-self: center; background: rgba(188, 19, 254, 0.1); border: 1px solid var(--sec); color: var(--sec); text-align: center; font-style: italic; }
+        .me { align-self: flex-start; background: var(--pri); color: #000; }
 
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--surf); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #333; }
-        .nav-btn { background: none; border: none; color: var(--dim); font-size: 0.75rem; cursor: pointer; }
-        .nav-btn.active { color: var(--pri); }
-        
-        /* المنشورات */
-        .post-card { background: var(--surf); margin: 15px; padding: 15px; border-radius: 15px; border-right: 4px solid var(--pri); }
-        .follow-btn { background: var(--pri); color: #000; border: none; padding: 5px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        /* ريلز الهدايا */
+        .gift-btn { background: var(--gold); color: #000; border: none; padding: 5px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .gift-btn:active { transform: scale(0.9); }
+
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #000; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #222; }
+        .nav-btn { background: none; border: none; color: #555; font-size: 1.2rem; cursor: pointer; }
+        .nav-btn.active { color: var(--pri); text-shadow: 0 0 10px var(--pri); }
     </style>
 </head>
 <body>
 
-    <div class="top-bar">
-        <div id="current-view-title" style="font-weight: bold; color: var(--pri);">الساحة العامة</div>
-        <div onclick="showView('profile', this)" style="cursor:pointer">👤</div>
+    <div class="prime-bar">
+        <div id="notify-msg">👁️ بابل برايم يراقب الأبعاد الآن...</div>
+        <div class="coin-badge">🪙 <span id="balance">1000</span></div>
     </div>
 
     <div class="content-area">
-        <div id="view-home" class="view active">
+        <div id="v-home" class="view active">
             <div id="posts-feed"></div>
         </div>
 
-        <div id="view-profile" class="view">
-            <div class="profile-header">
-                <div class="p-avatar" id="prof-img">👤</div>
-                <h2 id="prof-name">المُبتكر</h2>
-                <div class="stats">
-                    <div class="stat-item"><span class="stat-num">150</span> متابِع</div>
-                    <div class="stat-item"><span class="stat-num">89</span> منشور</div>
+        <div id="v-profile" class="view">
+            <div class="profile-card">
+                <div class="avatar-ring">👤</div>
+                <h2 id="p-name">المُبتكر</h2>
+                <div style="color:var(--gold); margin-bottom:15px;">نخبة بابل 🔱</div>
+                <div style="display:flex; justify-content:center; gap:25px; font-size:0.9rem;">
+                    <div><b>240</b> متابع</div>
+                    <div><b>100%</b> برمجية</div>
                 </div>
-                <button class="follow-btn" id="main-follow-btn">متابعة +</button>
             </div>
-            <div id="user-posts"></div>
+            <div style="padding:20px; text-align:center; color:var(--dim);">منشوراتك مسجلة في التاريخ الرقمي...</div>
         </div>
 
-        <div id="view-chat" class="view" style="height: 80vh;">
-            <div class="chat-container">
-                <div class="chat-messages" id="chat-box">
-                    <div style="text-align:center; color:#555;">اختر مستخدماً لبدء المحادثة...</div>
-                </div>
-                <div style="padding:15px; display:flex; gap:10px;">
-                    <input type="text" id="chat-in" style="flex:1; background:#222; border:none; color:#fff; padding:10px; border-radius:20px; outline:none;" placeholder="اكتب رسالة سرية...">
-                    <button onclick="sendDirectMsg()" style="background:var(--pri); border:none; width:40px; height:40px; border-radius:50%;">🚀</button>
-                </div>
+        <div id="v-chat" class="view chat-view">
+            <div id="chat-log">
+                <div class="bubble oracle">مرحباً بك في دهاليز الأوراكل.. اسألني عن مستقبلك في بابل.</div>
+            </div>
+            <div style="padding:15px; display:flex; gap:10px; background:#000;">
+                <input type="text" id="chat-in" style="flex:1; background:#111; border:1px solid #222; color:#fff; padding:12px; border-radius:25px; outline:none;" placeholder="تحدث مع البُعد...">
+                <button onclick="talkToOracle()" style="background:var(--sec); border:none; width:45px; height:45px; border-radius:50%; color:#fff;">👁️</button>
             </div>
         </div>
     </div>
 
     <div class="bottom-nav">
-        <button class="nav-btn active" onclick="showView('home', this)">🏠<br>الرئيسية</button>
-        <button class="nav-btn" onclick="alert('قسم الريلز مدمج في الرئيسية الآن!')">🎬<br>ريلز</button>
-        <button class="nav-btn" onclick="showView('chat', this)">💬<br>رسائل</button>
-        <button class="nav-btn" onclick="showView('profile', this)">👤<br>أنا</button>
+        <button class="nav-btn active" onclick="switchV('home', this)">🏠</button>
+        <button class="nav-btn" onclick="switchV('chat', this)">💬</button>
+        <button class="nav-btn" onclick="switchV('profile', this)">👤</button>
     </div>
 
     <script>
@@ -98,77 +92,75 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        
-        const myID = "user_" + Math.floor(Math.random() * 1000); // معرف وهمي للاختبار
-        const myName = "المُبتكر";
-        let activeChatPartner = null;
 
-        // --- وظائف الواجهة ---
-        function showView(id, btn) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById('view-' + id).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            if(btn) btn.classList.add('active');
-            document.getElementById('current-view-title').innerText = id.toUpperCase();
+        let coins = parseInt(localStorage.getItem('babel_coins')) || 1000;
+        document.getElementById('balance').innerText = coins;
+
+        function updateNotify(msg) {
+            const n = document.getElementById('notify-msg');
+            n.style.opacity = 0;
+            setTimeout(() => { n.innerText = "✨ " + msg; n.style.opacity = 1; }, 500);
         }
 
-        // --- جلب المنشورات والملفات الشخصية ---
+        function gift(postId) {
+            if(coins < 50) return updateNotify("لا تملك ذهباً كافياً!");
+            coins -= 50;
+            localStorage.setItem('babel_coins', coins);
+            document.getElementById('balance').innerText = coins;
+            updateNotify("لقد أرسلت هدية ملكية (50🪙)!");
+            // تحديث السيرفر
+            db.ref('posts/'+postId+'/gifts').transaction(g => (g || 0) + 50);
+        }
+
+        function talkToOracle() {
+            const input = document.getElementById('chat-in');
+            if(!input.value) return;
+            const log = document.getElementById('chat-log');
+            
+            // إضافة رسالتك
+            log.innerHTML += `<div class="bubble me">${input.value}</div>`;
+            
+            const wisdom = [
+                "الأكواد التي تكتبها هي طلاسم تحرك العالم خلف الشاشة.",
+                "بابل لا ينسى من بناه، أنت الآن في قلب السيرفر.",
+                "رأيت في الداتابيز أن مستقبلك مشرق بالبيانات.",
+                "كل ثغرة أغلقتها هي باب فُتح لك في عالم الحقيقة."
+            ];
+            
+            setTimeout(() => {
+                const answer = wisdom[Math.floor(Math.random()*wisdom.length)];
+                log.innerHTML += `<div class="bubble oracle">${answer}</div>`;
+                log.scrollTop = log.scrollHeight;
+                updateNotify("الأوراكل منحك نبوءة جديدة!");
+            }, 1000);
+            
+            input.value = '';
+        }
+
         db.ref('posts').on('value', snap => {
             const feed = document.getElementById('posts-feed');
             feed.innerHTML = '';
             snap.forEach(child => {
                 const p = child.val();
                 feed.innerHTML = `
-                    <div class="post-card">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <strong onclick="openProfile('${p.author}')" style="cursor:pointer; color:var(--pri);">@${p.author}</strong>
-                            <button class="follow-btn" style="font-size:0.7rem;" onclick="openChat('${p.author}')">رسالة ✉️</button>
+                    <div style="background:var(--surf); margin:15px; padding:20px; border-radius:15px; border:1px solid var(--brd);">
+                        <div style="display:flex; justify-content:space-between;">
+                            <b style="color:var(--pri)">@${p.author}</b>
+                            <button class="gift-btn" onclick="gift('${child.key}')">🎁 أرسل ذهب (${p.gifts || 0})</button>
                         </div>
                         <p>${p.content}</p>
-                        ${p.media ? `<img src="${p.media}" style="width:100%; border-radius:10px;">` : ''}
+                        ${p.media ? `<img src="${p.media}" style="width:100%; border-radius:10px; margin-top:10px;">` : ''}
                     </div>
                 ` + feed.innerHTML;
             });
         });
 
-        function openProfile(name) {
-            document.getElementById('prof-name').innerText = name;
-            showView('profile');
-        }
-
-        // --- نظام الدردشة المباشرة (Direct Messages) ---
-        function openChat(partner) {
-            activeChatPartner = partner;
-            document.getElementById('current-view-title').innerText = "دردشة مع " + partner;
-            showView('chat');
-            listenToMessages();
-        }
-
-        function sendDirectMsg() {
-            const text = document.getElementById('chat-in').value;
-            if(!text || !activeChatPartner) return;
-            
-            const chatId = [myName, activeChatPartner].sort().join("_");
-            db.ref('chats/' + chatId).push({
-                sender: myName,
-                text: text,
-                time: firebase.database.ServerValue.TIMESTAMP
-            });
-            document.getElementById('chat-in').value = '';
-        }
-
-        function listenToMessages() {
-            const chatId = [myName, activeChatPartner].sort().join("_");
-            db.ref('chats/' + chatId).on('value', snap => {
-                const box = document.getElementById('chat-box');
-                box.innerHTML = '';
-                snap.forEach(child => {
-                    const m = child.val();
-                    const type = m.sender === myName ? 'sent' : 'received';
-                    box.innerHTML += `<div class="msg ${type}">${m.text}</div>`;
-                });
-                box.scrollTop = box.scrollHeight;
-            });
+        function switchV(id, btn) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById('v-' + id).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            updateNotify("انتقلت إلى بُعد " + id);
         }
     </script>
 </body>
