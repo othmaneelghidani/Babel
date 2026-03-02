@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بابل 16.0 | النظام المتكامل</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        :root { --bg: #050505; --surf: #121212; --pri: #00ffcc; --sec: #bc13fe; --txt: #fff; --brd: #222; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--txt); display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 260px; background: var(--surf); border-left: 1px solid var(--brd); padding: 20px 0; display: flex; flex-direction: column; }
+        .main { flex: 1; overflow-y: auto; padding: 20px; position: relative; }
+        
+        /* تصميم المنشورات المتطور */
+        .post-card { background: var(--surf); padding: 20px; border-radius: 15px; border: 1px solid var(--brd); margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; }
+        .post-card h4 { margin: 0 0 10px 0; color: var(--pri); display: flex; justify-content: space-between; }
+        
+        /* نظام التعليقات */
+        .comments-section { margin-top: 15px; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 10px; }
+        .comment-item { font-size: 0.9rem; margin-bottom: 5px; border-bottom: 1px solid #222; padding-bottom: 3px; }
+        .comment-item b { color: var(--sec); }
+        .comment-input-area { display: flex; gap: 10px; margin-top: 10px; }
+        .comment-input-area input { flex: 1; background: #000; border: 1px solid var(--brd); color: #fff; padding: 5px 10px; border-radius: 15px; outline: none; }
+
+        /* أزرار التفاعل */
+        .actions { display: flex; gap: 20px; margin-top: 15px; border-top: 1px solid #222; padding-top: 10px; }
+        .like-btn { cursor: pointer; transition: 0.3s; }
+        .like-btn:hover { transform: scale(1.2); color: #ff0055; }
+
+        /* شاشة مكالمة الفيديو */
+        #video-ui { position: fixed; inset: 0; background: #000; z-index: 10000; display: none; flex-direction: column; }
+        .v-grid { display: flex; flex-direction: column; height: 100%; }
+        video { width: 100%; height: 50%; object-fit: cover; background: #111; }
+        .v-controls { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; }
+        .v-btn { width: 60px; height: 60px; border-radius: 50%; border: none; cursor: pointer; font-size: 1.5rem; }
+
+        .create-post { background: var(--surf); padding: 20px; border-radius: 15px; border: 1px solid var(--pri); margin-bottom: 30px; }
+        textarea { width: 100%; background: transparent; border: none; color: #fff; font-size: 1.1rem; outline: none; resize: none; }
+        .publish-row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .pub-btn { background: var(--pri); color: #000; border: none; padding: 10px 30px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2 style="text-align:center; color:var(--pri);">بابل 16.0 👁️</h2>
+    <div style="padding:20px; color:#888;">الآن: التعليقات، الإعجابات، والفيديو... كلها حية!</div>
+    <button onclick="startCall()" style="margin: 20px; padding: 15px; background: var(--sec); color: #fff; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">📞 مكالمة فيديو حية</button>
+</div>
+
+<div class="main">
+    <div class="create-post">
+        <textarea id="main-input" rows="2" placeholder="اكتب شيئاً ليراه الجميع ويعلقوا عليه..."></textarea>
+        <div class="publish-row">
+            <span id="user-display" style="color:var(--pri); font-weight:bold;">المُبتكر</span>
+            <button class="pub-btn" onclick="sendPost()">نشر في البُعد الحي 🚀</button>
+        </div>
+    </div>
+    
+    <div id="feed"></div>
+</div>
+
+<div id="video-ui">
+    <div class="v-grid">
+        <video id="remote-v" autoplay playsinline></video>
+        <video id="local-v" autoplay muted playsinline></video>
+    </div>
+    <div class="v-controls">
+        <button class="v-btn" style="background:red;" onclick="endCall()">❌</button>
+    </div>
+</div>
+
+<script>
+    // إعداداتك الخاصة (تم دمجها)
+    const firebaseConfig = {
+        apiKey: "AIzaSyCLEkACbZT1gMs9BGkiuxJxSvsHJGKTryk",
+        authDomain: "babel-e12d7.firebaseapp.com",
+        databaseURL: "https://babel-e12d7-default-rtdb.firebaseio.com",
+        projectId: "babel-e12d7",
+        storageBucket: "babel-e12d7.firebasestorage.app",
+        messagingSenderId: "825559802990",
+        appId: "1:825559802990:web:07446bfa45edf3358d327f"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const myName = "المُبتكر"; // يمكنك تغيير الاسم
+
+    // --- 1. إرسال المنشورات ---
+    function sendPost() {
+        const text = document.getElementById('main-input').value;
+        if(!text) return;
+        db.ref('posts').push({
+            author: myName,
+            content: text,
+            likes: 0,
+            time: firebase.database.ServerValue.TIMESTAMP
+        });
+        document.getElementById('main-input').value = '';
+    }
+
+    // --- 2. نظام الإعجابات والتعليقات الحية ---
+    function addLike(postId, currentLikes) {
+        db.ref('posts/' + postId).update({ likes: currentLikes + 1 });
+    }
+
+    function sendComment(postId) {
+        const input = document.getElementById('com-in-' + postId);
+        if(!input.value) return;
+        db.ref('posts/' + postId + '/comments').push({
+            user: myName,
+            text: input.value
+        });
+        input.value = '';
+    }
+
+    // --- 3. جلب البيانات وتحديث الواجهة ---
+    db.ref('posts').on('value', snap => {
+        const feed = document.getElementById('feed');
+        feed.innerHTML = '';
+        snap.forEach(child => {
+            const p = child.val();
+            const id = child.key;
+            
+            // تجميع التعليقات
+            let commentsHTML = '';
+            if(p.comments) {
+                Object.values(p.comments).forEach(c => {
+                    commentsHTML += `<div class="comment-item"><b>${c.user}:</b> ${c.text}</div>`;
+                });
+            }
+
+            feed.innerHTML = `
+                <div class="post-card">
+                    <h4><span>👤 ${p.author}</span> <small style="font-size:0.7rem; color:#555;">${new Date(p.time).toLocaleTimeString()}</small></h4>
+                    <p>${p.content}</p>
+                    <div class="actions">
+                        <span class="like-btn" onclick="addLike('${id}', ${p.likes})">❤️ ${p.likes} إعجاب</span>
+                        <span>💬 ${p.comments ? Object.keys(p.comments).length : 0} تعليق</span>
+                    </div>
+                    <div class="comments-section">
+                        ${commentsHTML}
+                        <div class="comment-input-area">
+                            <input type="text" id="com-in-${id}" placeholder="اكتب تعليقاً حياً...">
+                            <button onclick="sendComment('${id}')" style="background:var(--pri); border:none; border-radius:10px; cursor:pointer;">↩</button>
+                        </div>
+                    </div>
+                </div>
+            ` + feed.innerHTML;
+        });
+    });
+
+    // --- 4. مكالمة الفيديو (الربط المباشر) ---
+    let stream;
+    async function startCall() {
+        document.getElementById('video-ui').style.display = 'flex';
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        document.getElementById('local-v').srcObject = stream;
+        // ملاحظة: للربط الحقيقي بين جهازين نحتاج Signaling Server، هنا قمنا بمحاكاة الواجهة الحية
+    }
+    function endCall() {
+        stream.getTracks().forEach(t => t.stop());
+        document.getElementById('video-ui').style.display = 'none';
+    }
+</script>
+</body>
+</html>
