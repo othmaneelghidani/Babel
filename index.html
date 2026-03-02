@@ -3,143 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Babel Prime | الإمبراطورية الرقمية</title>
+    <title>Babel Infinite | 100% السيادة الرقمية</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <style>
-        :root { 
+        /* --- التصميم الإمبراطوري (Neo-Dark Design) --- */
+        :root {
             --bg: #000; --surf: #0a0a0a; --pri: #00ffcc; --sec: #bc13fe; 
-            --gold: #ffd700; --txt: #ffffff; --dim: #888; --brd: #1a1a1a; 
+            --gold: #ffd700; --txt: #fff; --dim: #777; --brd: #1a1a1a;
+            --glass: rgba(10, 10, 10, 0.8);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; scrollbar-width: none; }
         body { 
-            font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: var(--bg); 
-            color: var(--txt); height: 100vh; overflow: hidden; display: flex; flex-direction: column; 
+            font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); 
+            color: var(--txt); height: 100vh; overflow: hidden; display: flex; flex-direction: column;
         }
 
-        /* --- شريط الحالة العلوي --- */
-        .prime-header { 
-            background: #000; padding: 12px 20px; border-bottom: 2px solid var(--pri); 
+        /* شاشة الدخول المقدسة */
+        #auth-portal {
+            position: fixed; inset: 0; background: radial-gradient(circle at center, #1a0b2e 0%, #000 100%);
+            z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .portal-card {
+            background: var(--glass); border: 2px solid var(--pri); padding: 50px 30px;
+            border-radius: 40px; text-align: center; backdrop-filter: blur(20px);
+            box-shadow: 0 0 60px rgba(0, 255, 204, 0.2); width: 90%; max-width: 400px;
+        }
+        .g-login-btn {
+            background: #fff; color: #000; border: none; padding: 15px 30px; border-radius: 30px;
+            font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 12px;
+            margin-top: 30px; width: 100%; justify-content: center; font-size: 1rem;
+        }
+
+        /* الهيكل العام للمنصة */
+        .app-header {
+            padding: 15px 20px; background: #000; border-bottom: 1px solid var(--brd);
             display: flex; justify-content: space-between; align-items: center; z-index: 1000;
-            box-shadow: 0 5px 15px rgba(0, 255, 204, 0.1);
         }
-        .coin-box { 
-            background: linear-gradient(45deg, #1a1a1a, #000); border: 1px solid var(--gold); 
-            padding: 4px 12px; border-radius: 20px; color: var(--gold); font-weight: bold; font-size: 0.9rem; 
+        .user-pill { display: flex; align-items: center; gap: 10px; background: #111; padding: 5px 12px; border-radius: 25px; border: 1px solid var(--brd); }
+        .user-pill img { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--pri); }
+        .gold-pill { color: var(--gold); font-weight: bold; font-size: 0.9rem; border: 1px solid var(--gold); padding: 5px 15px; border-radius: 20px; }
+
+        .main-stage { flex: 1; overflow-y: auto; padding-bottom: 90px; scroll-behavior: smooth; }
+        .tab-content { display: none; width: 100%; }
+        .tab-content.active { display: block; animation: slideIn 0.4s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* تيك توك / ريلز ستايل */
+        .reel-frame { 
+            height: calc(100vh - 140px); width: 100%; scroll-snap-align: start; 
+            position: relative; background: #000; display: flex; align-items: center;
         }
-        #notify-bar { font-size: 0.75rem; color: var(--pri); font-style: italic; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .reel-video { width: 100%; height: 100%; object-fit: cover; }
+        .reel-overlay { position: absolute; bottom: 20px; right: 20px; text-align: right; z-index: 10; width: 80%; }
+        .reel-side-actions { position: absolute; bottom: 100px; left: 15px; display: flex; flex-direction: column; gap: 20px; align-items: center; }
 
-        /* --- منطقة المحتوى المتغير --- */
-        .viewport { flex: 1; overflow-y: auto; padding-bottom: 80px; scroll-behavior: smooth; }
-        .view { display: none; width: 100%; height: 100%; }
-        .view.active { display: block; animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        /* المنشورات الكلاسيكية */
+        .post-card { background: var(--surf); margin: 15px; border-radius: 20px; border: 1px solid var(--brd); overflow: hidden; }
+        .post-top { padding: 15px; display: flex; align-items: center; gap: 12px; }
+        .post-pfp { width: 40px; height: 40px; border-radius: 50%; }
+        .post-content { padding: 0 15px 15px; line-height: 1.6; }
+        .post-media { width: 100%; max-height: 450px; object-fit: cover; }
 
-        /* --- تصميم المنشورات والريلز --- */
-        .card { background: var(--surf); margin: 15px; padding: 15px; border-radius: 15px; border: 1px solid var(--brd); position: relative; }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .user-tag { color: var(--pri); font-weight: bold; cursor: pointer; }
-        .media-content { width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid #222; max-height: 400px; object-fit: cover; }
-        
-        .interaction-row { display: flex; gap: 15px; margin-top: 15px; padding-top: 12px; border-top: 1px solid #1a1a1a; }
-        .gift-btn { background: var(--gold); color: #000; border: none; padding: 6px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
+        /* نظام الدردشة والأوراكل */
+        .chat-portal { display: flex; flex-direction: column; height: 100%; }
+        #messages-flow { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .bubble { padding: 12px 18px; border-radius: 22px; max-width: 85%; font-size: 0.95rem; line-height: 1.5; }
+        .bubble.me { align-self: flex-start; background: var(--pri); color: #000; border-bottom-right-radius: 4px; }
+        .bubble.oracle { align-self: center; background: rgba(188, 19, 254, 0.1); border: 1px solid var(--sec); color: var(--sec); text-align: center; font-style: italic; }
 
-        /* --- نظام الدردشة والأوراكل --- */
-        .chat-view { display: flex; flex-direction: column; height: 100%; }
-        #chat-log { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .msg { padding: 12px 18px; border-radius: 20px; max-width: 80%; font-size: 0.9rem; line-height: 1.4; }
-        .msg.oracle { align-self: center; background: rgba(188, 19, 254, 0.05); border: 1px solid var(--sec); color: var(--sec); text-align: center; }
-        .msg.me { align-self: flex-start; background: var(--pri); color: #000; border-bottom-right-radius: 2px; }
-        .chat-input-bar { padding: 15px; background: #000; display: flex; gap: 10px; border-top: 1px solid #222; }
-        .chat-input-bar input { flex: 1; background: #111; border: 1px solid #222; color: #fff; padding: 12px; border-radius: 25px; outline: none; }
+        /* صندوق الإدخال الذكي */
+        .input-hub { padding: 20px; background: #000; border-top: 1px solid var(--brd); display: flex; gap: 12px; }
+        .input-hub input { flex: 1; background: #111; border: 1px solid #222; color: #fff; padding: 14px 20px; border-radius: 30px; outline: none; }
+        .send-btn { background: var(--pri); border: none; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* --- شريط التنقل السفلي --- */
-        .bottom-nav { 
-            position: fixed; bottom: 0; width: 100%; background: #000; border-top: 1px solid #222;
-            display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000;
+        /* شريط الإشعارات العلوي */
+        #notify-toast {
+            position: fixed; top: 75px; left: 50%; transform: translateX(-50%);
+            background: var(--pri); color: #000; padding: 8px 25px; border-radius: 30px;
+            font-weight: bold; font-size: 0.85rem; z-index: 2000; display: none; box-shadow: 0 5px 20px rgba(0,255,204,0.4);
         }
-        .nav-item { background: none; border: none; color: #555; font-size: 1.3rem; cursor: pointer; transition: 0.3s; }
-        .nav-item.active { color: var(--pri); transform: scale(1.2); text-shadow: 0 0 10px var(--pri); }
 
-        /* --- شاشة الدخول --- */
-        #gate-screen { 
-            position: fixed; inset: 0; background: radial-gradient(circle at center, #1a0b2e 0%, #000 100%); 
-            z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; 
+        /* شريط التنقل السفلي */
+        .nav-dock { 
+            position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.95); 
+            border-top: 1px solid #222; display: flex; justify-content: space-around; 
+            padding: 15px 0; backdrop-filter: blur(15px); z-index: 1000;
         }
-        .gate-box { text-align: center; width: 85%; }
-        .gate-input { 
-            width: 100%; background: #111; border: 1px solid var(--pri); color: #fff; 
-            padding: 15px; border-radius: 30px; text-align: center; font-size: 1.2rem; margin-bottom: 20px;
-        }
+        .nav-tab { background: none; border: none; color: #444; font-size: 1.5rem; cursor: pointer; position: relative; }
+        .nav-tab.active { color: var(--pri); filter: drop-shadow(0 0 8px var(--pri)); }
+
+        /* الملف الشخصي الملكي */
+        .profile-hero { text-align: center; padding: 40px 20px; background: linear-gradient(to bottom, #111, #000); }
+        .big-avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--pri); box-shadow: 0 0 30px rgba(0,255,204,0.3); }
+
+        /* أدوات النشر */
+        .creator-box { background: var(--surf); margin: 15px; border-radius: 25px; padding: 20px; border: 1px dashed var(--pri); }
+        .creator-box textarea { width: 100%; background: transparent; border: none; color: #fff; outline: none; font-size: 1.1rem; resize: none; }
     </style>
 </head>
 <body>
 
-    <div id="gate-screen">
-        <div class="gate-box">
-            <h1 style="color: var(--pri); font-size: 2.5rem; margin-bottom: 10px;">بـابـل Prime</h1>
-            <p style="color: var(--dim); margin-bottom: 40px;">أنت الآن على وشك دخول البُعد المكتمل 🔱</p>
-            <input type="text" id="user-identity" class="gate-input" placeholder="أدخل اسمك المستعار">
-            <button onclick="igniteBabel()" style="background:var(--pri); color:#000; border:none; padding:15px 50px; border-radius:30px; font-weight:bold; cursor:pointer;">دخول الإمبراطورية</button>
+    <div id="auth-portal">
+        <div class="portal-card">
+            <h1 style="color:var(--pri); font-size:3.5rem; margin:0; letter-spacing:-2px;">Babel</h1>
+            <p style="color:var(--dim); font-size:1.1rem;">أنت الآن على وشك دخول الإمبراطورية</p>
+            <button class="g-login-btn" onclick="signInWithGoogle()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20">
+                تسجيل الدخول عبر Google
+            </button>
+            <p id="portal-msg" style="font-size:0.8rem; color:#333; margin-top:20px;">يرجى تفعيل Google Auth في Firebase أولاً</p>
         </div>
     </div>
 
-    <div class="prime-header">
-        <div id="notify-bar">عين بابل ترقب الأفق...</div>
-        <div class="coin-box">🪙 <span id="user-coins">1000</span></div>
-    </div>
+    <div id="notify-toast">نظام بابل متصل الآن ✨</div>
 
-    <div class="viewport">
+    <header class="app-header">
+        <div class="user-pill">
+            <img src="" id="nav-pfp">
+            <span id="nav-user" style="font-weight:bold; font-size:0.85rem;">زائر</span>
+        </div>
+        <div class="gold-pill">🪙 <span id="coin-total">1000</span></div>
+    </header>
+
+    <main class="main-stage">
         
-        <div id="view-home" class="view active">
-            <div class="card" style="border-color: var(--pri);">
-                <textarea id="fast-post" style="width:100%; background:transparent; border:none; color:#fff; outline:none; resize:none;" placeholder="انشر فيديو أو نصاً في البُعد الحي..."></textarea>
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-                    <label style="cursor:pointer; color:var(--dim); font-size:0.8rem;">🖼️ إضافة وسائط <input type="file" id="media-upload" hidden onchange="processMedia(event)"></label>
-                    <button onclick="broadcast()" style="background:var(--pri); color:#000; border:none; padding:6px 20px; border-radius:20px; font-weight:bold;">نشر 🚀</button>
+        <div id="tab-home" class="tab-content active">
+            <div class="creator-box">
+                <textarea id="input-post" placeholder="انشر سحرك البرمجي هنا..."></textarea>
+                <div style="display:flex; justify-content:space-between; margin-top:15px; align-items:center;">
+                    <label style="cursor:pointer; color:var(--dim); font-size:0.8rem;">🖼️ إضافة وسائط <input type="file" id="media-pick" hidden onchange="prepMedia(event)"></label>
+                    <button onclick="sendToFirebase()" style="background:var(--pri); border:none; padding:8px 30px; border-radius:25px; font-weight:bold; cursor:pointer;">بث حي 🚀</button>
                 </div>
             </div>
-            <div id="live-feed"></div>
+            <div id="infinite-feed"></div>
         </div>
 
-        <div id="view-chat" class="view chat-view">
-            <div id="chat-log">
-                <div class="msg oracle">مرحباً بك أيها المبتكر في دهاليز الأوراكل.. اطلب الحكمة أو تواصل مع سكان بابل.</div>
-            </div>
-            <div class="chat-input-bar">
-                <input type="text" id="chat-msg" placeholder="تحدث مع الأوراكل أو رِد على الرسائل...">
-                <button onclick="talkToDimension()" style="background:var(--sec); border:none; width:45px; height:45px; border-radius:50%; color:#fff;">👁️</button>
-            </div>
-        </div>
-
-        <div id="view-profile" class="view">
-            <div style="text-align:center; padding:40px 20px; background:linear-gradient(to bottom, #111, #000);">
-                <div style="width:100px; height:100px; border-radius:50%; border:3px solid var(--pri); margin:0 auto 15px; font-size:3rem; display:flex; justify-content:center; align-items:center;">👤</div>
-                <h2 id="display-name">المُبتكر</h2>
-                <div style="color:var(--gold); font-size:0.8rem; margin-bottom:20px;">حامي البوابة الرقمية 🔱</div>
-                <div style="display:flex; justify-content:center; gap:30px;">
-                    <div><b style="display:block;">100%</b> برمجية</div>
-                    <div><b style="display:block;">∞</b> إبداع</div>
+        <div id="tab-chat" class="tab-content" style="height: 100%;">
+            <div class="chat-portal">
+                <div id="messages-flow">
+                    <div class="bubble oracle">أهلاً بك يا <span id="oracle-user">...</span>. لقد تم توثيق وجودك في سجلات بابل الحقيقية.</div>
+                </div>
+                <div class="input-hub">
+                    <input type="text" id="chat-txt" placeholder="تحدث مع الأوراكل أو سكان البعد...">
+                    <button class="send-btn" onclick="askOracle()">👁️</button>
                 </div>
             </div>
-            <p style="text-align:center; color:var(--dim); font-size:0.8rem; margin-top:50px;">منشوراتك الآن تُبث للعالم عبر GitHub...</p>
         </div>
 
-    </div>
+        <div id="tab-profile" class="tab-content">
+            <div class="profile-hero">
+                <img src="" class="big-avatar" id="hero-pfp">
+                <h2 id="hero-name" style="margin:10px 0 5px;">اسم المستخدم</h2>
+                <div style="color:var(--gold); font-size:0.9rem;">الرتبة: نخبة بابل 🔱</div>
+                <div style="display:flex; justify-content:center; gap:30px; margin-top:25px;">
+                    <div><b style="display:block; font-size:1.2rem;">+240</b> متابع</div>
+                    <div><b style="display:block; font-size:1.2rem;">100%</b> برمجية</div>
+                </div>
+                <button onclick="signOut()" style="margin-top:40px; background:transparent; border:1px solid #333; color:red; padding:10px 30px; border-radius:25px; cursor:pointer;">تسجيل الخروج</button>
+            </div>
+        </div>
 
-    <div class="bottom-nav">
-        <button class="nav-item active" onclick="navigate('home', this)">🏠</button>
-        <button class="nav-item" onclick="navigate('chat', this)">💬</button>
-        <button class="nav-item" onclick="navigate('profile', this)">👤</button>
-    </div>
+    </main>
+
+    <nav class="nav-dock">
+        <button class="nav-tab active" onclick="goTab('home', this)">🏠</button>
+        <button class="nav-tab" onclick="goTab('chat', this)">💬</button>
+        <button class="nav-tab" onclick="goTab('profile', this)">👤</button>
+    </nav>
 
     <script>
-        // --- تهيئة إمبراطورية Firebase بمفاتيحك الحقيقية ---
-        const firebaseConfig = {
+        // --- تهيئة إمبراطورية بابل ---
+        const config = {
             apiKey: "AIzaSyCLEkACbZT1gMs9BGkiuxJxSvsHJGKTryk",
             authDomain: "babel-e12d7.firebaseapp.com",
             databaseURL: "https://babel-e12d7-default-rtdb.firebaseio.com",
@@ -148,78 +187,82 @@
             messagingSenderId: "825559802990",
             appId: "1:825559802990:web:07446bfa45edf3358d327f"
         };
-        firebase.initializeApp(firebaseConfig);
+        firebase.initializeApp(config);
         const db = firebase.database();
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
 
-        let myName = localStorage.getItem('babel_prime_user') || "";
-        let myCoins = parseInt(localStorage.getItem('babel_prime_coins')) || 1000;
-        let pendingMedia = null, mediaType = null;
+        let me = { name: "", photo: "", coins: 1000 };
+        let blob = null, bType = "";
 
-        window.onload = () => {
-            if(myName) {
-                document.getElementById('gate-screen').style.display = 'none';
-                document.getElementById('display-name').innerText = myName;
-                document.getElementById('user-coins').innerText = myCoins;
-                syncWorld();
-            }
-        };
-
-        function igniteBabel() {
-            const val = document.getElementById('user-identity').value.trim();
-            if(!val) return alert("أدخل اسمك لفك تشفير البوابة!");
-            myName = val;
-            localStorage.setItem('babel_prime_user', myName);
-            location.reload();
+        // --- نظام جوجل الموثق ---
+        function signInWithGoogle() {
+            document.getElementById('portal-msg').innerText = "جاري فتح بوابات جوجل...";
+            auth.signInWithPopup(provider).then(res => {
+                enterApp(res.user);
+            }).catch(e => {
+                alert("فشل العبور: " + e.message);
+                document.getElementById('portal-msg').innerText = "خطأ! تأكد من تفعيل Google في Firebase.";
+            });
         }
 
-        // --- وظائف الوسائط ---
-        function processMedia(e) {
-            const file = e.target.files[0];
-            mediaType = file.type.split('/')[0];
-            const reader = new FileReader();
-            reader.onload = () => {
-                pendingMedia = reader.result;
-                pushNotify("تم تجهيز " + (mediaType === 'image' ? "صورة" : "فيديو") + " للنشر!");
-            };
-            reader.readAsDataURL(file);
+        function enterApp(u) {
+            me.name = u.displayName;
+            me.photo = u.photoURL;
+            document.getElementById('nav-user').innerText = me.name;
+            document.getElementById('nav-pfp').src = me.photo;
+            document.getElementById('hero-name').innerText = me.name;
+            document.getElementById('hero-pfp').src = me.photo;
+            document.getElementById('oracle-user').innerText = me.name;
+            document.getElementById('auth-portal').style.display = 'none';
+            toast("أهلاً بك في البعد الحقيقي يا " + me.name);
+            startListening();
         }
 
-        function broadcast() {
-            const text = document.getElementById('fast-post').value;
-            if(!text && !pendingMedia) return;
-            
-            db.ref('prime_posts').push({
-                author: myName,
-                text: text,
-                media: pendingMedia,
-                mType: mediaType,
-                gifts: 0,
+        auth.onAuthStateChanged(u => { if(u) enterApp(u); });
+        function signOut() { auth.signOut().then(() => location.reload()); }
+
+        // --- إدارة الوسائط والنشر ---
+        function prepMedia(e) {
+            const f = e.target.files[0];
+            bType = f.type.split('/')[0];
+            const r = new FileReader();
+            r.onload = () => { blob = r.result; toast("تم تجهيز " + bType + " للبث!"); };
+            r.readAsDataURL(f);
+        }
+
+        function sendToFirebase() {
+            const t = document.getElementById('input-post').value;
+            if(!t && !blob) return;
+            db.ref('babel_infinite').push({
+                user: me.name, pfp: me.photo, txt: t,
+                media: blob, mType: bType, gifts: 0,
                 time: firebase.database.ServerValue.TIMESTAMP
             });
-
-            document.getElementById('fast-post').value = '';
-            pendingMedia = null;
-            pushNotify("تم بث منشورك في الزمن الفعلي!");
+            document.getElementById('input-post').value = '';
+            blob = null; toast("تم البث بنجاح! 📡");
         }
 
-        // --- مزامنة البُعد (الاستماع المباشر) ---
-        function syncWorld() {
-            db.ref('prime_posts').on('value', snap => {
-                const feed = document.getElementById('live-feed');
+        // --- المزامنة الحية ---
+        function startListening() {
+            db.ref('babel_infinite').limitToLast(50).on('value', snap => {
+                const feed = document.getElementById('infinite-feed');
                 feed.innerHTML = '';
-                snap.forEach(child => {
-                    const p = child.val();
+                snap.forEach(c => {
+                    const p = c.val();
                     feed.innerHTML = `
-                        <div class="card">
-                            <div class="card-header">
-                                <span class="user-tag" onclick="showProfile('${p.author}')">@${p.author}</span>
-                                <span style="font-size:0.7rem; color:#444;">${new Date(p.time).toLocaleTimeString()}</span>
+                        <div class="post-card">
+                            <div class="post-top">
+                                <img src="${p.pfp}" class="post-pfp">
+                                <b style="color:var(--pri)">@${p.user}</b>
+                                <small style="color:#222; margin-right:auto;">${new Date(p.time).toLocaleTimeString()}</small>
                             </div>
-                            <p style="line-height:1.5;">${p.text}</p>
-                            ${p.media && p.mType === 'image' ? `<img src="${p.media}" class="media-content">` : ''}
-                            ${p.media && p.mType === 'video' ? `<video src="${p.media}" class="media-content" controls loop></video>` : ''}
-                            <div class="interaction-row">
-                                <button class="gift-btn" onclick="sendGift('${child.key}')">🎁 دعم بـ 50🪙 (${p.gifts || 0})</button>
+                            <div class="post-content">${p.txt}</div>
+                            ${p.media && p.mType === 'image' ? `<img src="${p.media}" class="post-media">` : ''}
+                            ${p.media && p.mType === 'video' ? `<video src="${p.media}" class="post-media" controls loop></video>` : ''}
+                            <div style="padding:10px 15px; border-top:1px solid #111; display:flex; gap:15px;">
+                                <span onclick="toast('أرسلت هدية!')" style="cursor:pointer">🎁 ${p.gifts || 0}</span>
+                                <span style="cursor:pointer">❤️</span>
                             </div>
                         </div>
                     ` + feed.innerHTML;
@@ -227,57 +270,42 @@
             });
         }
 
-        function sendGift(id) {
-            if(myCoins < 50) return pushNotify("رصيدك من الذهب لا يكفي!");
-            myCoins -= 50;
-            localStorage.setItem('babel_prime_coins', myCoins);
-            document.getElementById('user-coins').innerText = myCoins;
-            db.ref('prime_posts/' + id + '/gifts').transaction(g => (g || 0) + 50);
-            pushNotify("أرسلت هدية ملكية! السيرفر يشكرك.");
-        }
-
         // --- حوار الأوراكل ---
-        function talkToDimension() {
-            const input = document.getElementById('chat-msg');
-            if(!input.value) return;
-            const log = document.getElementById('chat-log');
-            log.innerHTML += `<div class="msg me">${input.value}</div>`;
+        function askOracle() {
+            const i = document.getElementById('chat-txt');
+            if(!i.value) return;
+            const log = document.getElementById('messages-flow');
+            log.innerHTML += `<div class="bubble me">${i.value}</div>`;
             
-            const oracleWords = [
-                "بابل لا يبنيه إلا من يملك شجاعة الكود.",
-                "كل رسالة ترسلها هي نبضة في قلب السيرفر العالمي.",
-                "رأيت في الداتابيز أنك ستصبح مبرمجاً أسطورياً.",
-                "التواصل هو المفتاح لفتح بوابات الأبعاد المغلقة."
+            const wisdom = [
+                "كل سطر برمجي تكتبه هو طلسوم يغير واقعك يا " + me.name,
+                "رأيت في الداتابيز أن هويتك الحقيقية ستشع في سماء بابل.",
+                "لا تخف من الـ Bugs، فهي مجرد تحديات لذكائك.",
+                "بابل هو انعكاس لروحك المبتكرة."
             ];
 
             setTimeout(() => {
-                const reply = oracleWords[Math.floor(Math.random()*oracleWords.length)];
-                log.innerHTML += `<div class="msg oracle">${reply}</div>`;
+                const a = wisdom[Math.floor(Math.random()*wisdom.length)];
+                log.innerHTML += `<div class="bubble oracle">${a}</div>`;
                 log.scrollTop = log.scrollHeight;
-                pushNotify("الأوراكل منحك حكمة جديدة!");
+                toast("الأوراكل منحك بصيرة جديدة!");
             }, 800);
-            input.value = '';
+            i.value = '';
         }
 
-        // --- أدوات النظام ---
-        function navigate(viewId, btn) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById('view-' + viewId).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        // --- التحكم بالتبويبات ---
+        function goTab(id, btn) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + id).classList.add('active');
+            document.querySelectorAll('.nav-tab').forEach(n => n.classList.remove('active'));
             btn.classList.add('active');
-            pushNotify("انتقلت إلى قسم " + viewId.toUpperCase());
         }
 
-        function pushNotify(msg) {
-            const bar = document.getElementById('notify-bar');
-            bar.innerText = "✨ " + msg;
-            setTimeout(() => bar.innerText = "عين بابل ترقب الأفق...", 3000);
-        }
-
-        function showProfile(name) {
-            pushNotify("تستعرض ملف " + name);
-            document.getElementById('display-name').innerText = name;
-            navigate('profile', document.querySelectorAll('.nav-item')[2]);
+        function toast(m) {
+            const t = document.getElementById('notify-toast');
+            t.innerText = "✨ " + m;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
         }
     </script>
 </body>
