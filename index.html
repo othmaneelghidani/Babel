@@ -35,6 +35,10 @@
         <!-- Stories Bar -->
         <div class="stories-bar" id="storiesBar">
             <!-- ستظهر القصص هنا -->
+            <!-- مثال: 
+            <div><img src="story1.jpg"></div>
+            <div><video src="story2.mp4"></video></div>
+            -->
         </div>
 
         <!-- Create Post -->
@@ -48,8 +52,30 @@
 
         <!-- Feed -->
         <div id="feed">
-            <!-- منشورات المستخدمين ستظهر هنا -->
+            <!-- مثال هيكل منشور -->
+            <div class="card" id="post-example">
+                <b>اسم المستخدم</b>
+                <p>هذا نص مثال لمنشور</p>
+                <img src="example-image.jpg" alt="مثال صورة منشور">
+                <video src="example-video.mp4" controls></video>
+
+                <!-- إعجابات -->
+                <div class="like" onclick="addLike('post-example')">
+                    ❤️ <span id="like-count-post-example">0</span>
+                </div>
+
+                <!-- التعليقات -->
+                <div class="comments-section" id="comments-post-example">
+                    <div class="comment"><b>مستخدم 1:</b> تعليق مثال</div>
+                    <div class="comment-input-area">
+                        <input type="text" id="com-in-post-example" placeholder="اكتب تعليقاً حياً...">
+                        <button onclick="sendComment('post-example')">↩</button>
+                    </div>
+                </div>
+            </div>
+            <!-- نهاية مثال منشور -->
         </div>
+
     </div>
 
     <!-- ===========================
