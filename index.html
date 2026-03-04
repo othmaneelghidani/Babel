@@ -1,284 +1,171 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Babel 20.0 | الهوية العالمية</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Babel Pro</title>
 
-    <style>
-        :root {
-            --bg: #000; --surf: #0a0a0a; --pri: #00ffcc; --sec: #bc13fe; 
-            --gold: #ffd700; --txt: #fff; --brd: #1a1a1a; --glass: rgba(15, 15, 15, 0.9);
-        }
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--txt); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-
-        /* شاشة الدخول الفخمة */
-        #auth-gate { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; justify-content: center; align-items: center; text-align: center; }
-        .gate-card { border: 1px solid var(--pri); padding: 40px; border-radius: 30px; background: radial-gradient(circle, #111, #000); width: 90%; max-width: 400px; }
-        .g-btn { background: #fff; color: #000; border: none; padding: 12px 25px; border-radius: 30px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; margin: 20px auto; }
-
-        /* الهيدر مع محرك البحث */
-        .top-nav { padding: 10px 20px; background: var(--glass); border-bottom: 1px solid var(--brd); display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; }
-        .search-bar { flex: 1; position: relative; }
-        .search-bar input { width: 100%; background: #111; border: 1px solid #222; color: #fff; padding: 10px 40px 10px 15px; border-radius: 20px; outline: none; font-size: 0.9rem; }
-        .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--dim); }
-
-        /* منطقة العرض */
-        .viewport { flex: 1; overflow-y: auto; padding-bottom: 80px; }
-        .page { display: none; } .page.active { display: block; animation: slideUp 0.3s; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* كرت الملف الشخصي المطور */
-        .profile-header { background: linear-gradient(to bottom, #111, #000); padding: 50px 20px; text-align: center; border-bottom: 1px solid var(--brd); position: relative; }
-        .edit-btn { position: absolute; top: 20px; left: 20px; background: var(--brd); border: none; color: #fff; padding: 5px 15px; border-radius: 15px; font-size: 0.8rem; cursor: pointer; }
-        .p-avatar { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--pri); box-shadow: 0 0 20px rgba(0,255,204,0.2); margin-bottom: 15px; }
-        .p-bio { color: var(--dim); font-size: 0.9rem; margin-top: 10px; line-height: 1.4; max-width: 300px; margin-inline: auto; }
-
-        /* مودال التعديل (Modal) */
-        #edit-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 20000; display: none; justify-content: center; align-items: center; }
-        .modal-box { background: var(--surf); border: 1px solid var(--pri); padding: 30px; border-radius: 25px; width: 90%; max-width: 400px; }
-        .modal-box input, .modal-box textarea { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 15px; margin-bottom: 15px; outline: none; }
-
-        /* المنشورات */
-        .post { background: var(--surf); margin: 15px; padding: 15px; border-radius: 18px; border: 1px solid var(--brd); }
-        .post-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; }
-        .post-head img { width: 35px; height: 35px; border-radius: 50%; }
-        .post-media { width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid #111; }
-
-        /* شريط التنقل */
-        .bottom-dock { position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.95); border-top: 1px solid #222; display: flex; justify-content: space-around; padding: 15px 0; }
-        .dock-btn { background: none; border: none; color: #444; font-size: 1.4rem; cursor: pointer; }
-        .dock-btn.active { color: var(--pri); transform: translateY(-5px); text-shadow: 0 0 10px var(--pri); }
-    </style>
+<style>
+body{margin:0;background:#0a0a0a;color:#fff;font-family:sans-serif}
+#login{position:fixed;inset:0;background:#000;display:flex;justify-content:center;align-items:center;z-index:999}
+button{cursor:pointer}
+.main{padding:15px;max-width:600px;margin:auto}
+.card{background:#111;padding:15px;border-radius:15px;margin-bottom:20px}
+textarea,input{width:100%;background:#000;border:1px solid #222;color:#fff;padding:10px;border-radius:10px}
+.pub{background:#00ffcc;color:#000;border:none;padding:10px 20px;border-radius:20px;margin-top:10px}
+.like{cursor:pointer;margin-top:10px;display:inline-block}
+img,video{width:100%;border-radius:10px;margin-top:10px}
+.comment{font-size:0.9rem;margin-top:5px}
+</style>
 </head>
 <body>
 
-    <div id="auth-gate">
-        <div class="gate-card">
-            <h1 style="color:var(--pri); font-size:2.8rem; margin:0;">Babel</h1>
-            <p style="color:#555;">أنشئ هويتك العالمية الآن</p>
-            <button class="g-btn" onclick="login()">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
-                الدخول عبر Google
-            </button>
-        </div>
-    </div>
+<div id="login">
+<button onclick="login()" style="padding:20px 40px;background:#00ffcc;border:none;border-radius:10px;font-weight:bold;">
+تسجيل الدخول عبر Google
+</button>
+</div>
 
-    <header class="top-nav">
-        <div style="font-weight:bold; color:var(--pri); font-size:1.2rem;">👁️</div>
-        <div class="search-bar">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="search-input" placeholder="ابحث عن مستخدمين..." oninput="searchUsers()">
-        </div>
-        <div id="search-results" style="position:absolute; top:60px; left:20px; right:20px; background:#111; border-radius:15px; z-index:1000;"></div>
-    </header>
+<div class="main">
 
-    <main class="viewport">
-        <div id="p-home" class="page active">
-            <div style="padding:15px; border-bottom:1px solid #111;">
-                <textarea id="post-txt" style="width:100%; background:transparent; border:none; color:#fff; font-size:1.1rem; outline:none;" placeholder="ما الجديد في عالمك؟..."></textarea>
-                <div style="display:flex; justify-content:space-between; margin-top:10px;">
-                    <label style="cursor:pointer; font-size:0.8rem; color:#555;">🖼️ ميديا <input type="file" id="media-in" hidden onchange="loadMedia(event)"></label>
-                    <button onclick="publish()" style="background:var(--pri); border:none; padding:6px 20px; border-radius:20px; font-weight:bold;">بث 🚀</button>
-                </div>
-            </div>
-            <div id="feed"></div>
-        </div>
+<h2 id="welcome"></h2>
 
-        <div id="p-profile" class="page">
-            <div class="profile-header">
-                <button class="edit-btn" id="edit-trigger" onclick="openEdit()">تعديل ⚙️</button>
-                <img src="" class="p-avatar" id="pf-img">
-                <h2 id="pf-name" style="margin:0;">اسم المستخدم</h2>
-                <div style="color:var(--gold); font-size:0.8rem;">نخبة بابل 🔱</div>
-                <p class="p-bio" id="pf-bio">لا يوجد وصف بعد..</p>
-                <div style="margin-top:20px; display:flex; justify-content:center; gap:20px; font-size:0.9rem;">
-                    <div><b>150</b> متابع</div>
-                    <div><b>90</b> منشور</div>
-                </div>
-            </div>
-            <div id="user-posts-list"></div>
-        </div>
-    </main>
+<div class="card">
+<textarea id="postText" placeholder="اكتب منشورك..."></textarea>
+<input type="file" id="mediaInput" accept="image/*,video/*">
+<button class="pub" onclick="sendPost()">نشر</button>
+</div>
 
-    <div id="edit-modal">
-        <div class="modal-box">
-            <h3 style="margin-top:0;">تعديل الملف الشخصي</h3>
-            <input type="text" id="edit-name" placeholder="الاسم الجديد">
-            <textarea id="edit-bio" placeholder="وصفك الشخصي (Bio)" rows="3"></textarea>
-            <div style="display:flex; gap:10px;">
-                <button onclick="saveProfile()" style="flex:1; background:var(--pri); border:none; padding:10px; border-radius:15px; font-weight:bold;">حفظ</button>
-                <button onclick="document.getElementById('edit-modal').style.display='none'" style="flex:1; background:#222; border:none; color:#fff; border-radius:15px;">إلغاء</button>
-            </div>
-        </div>
-    </div>
+<div id="feed"></div>
 
-    <nav class="bottom-dock">
-        <button class="dock-btn active" onclick="goTab('home', this)">🏠</button>
-        <button class="dock-btn" onclick="alert('قسم الريلز مدمج في التايملاين!')">🎬</button>
-        <button class="dock-btn" onclick="goMyProfile(this)">👤</button>
-    </nav>
+</div>
 
-    <script>
-        // --- تهيئة Firebase ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyCLEkACbZT1gMs9BGkiuxJxSvsHJGKTryk",
-            authDomain: "babel-e12d7.firebaseapp.com",
-            databaseURL: "https://babel-e12d7-default-rtdb.firebaseio.com",
-            projectId: "babel-e12d7",
-            storageBucket: "babel-e12d7.firebasestorage.app",
-            messagingSenderId: "825559802990",
-            appId: "1:825559802990:web:07446bfa45edf3358d327f"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const auth = firebase.auth();
+<script>
+const firebaseConfig = {
+apiKey: "ضع_apiKey_هنا",
+authDomain: "ضع_authDomain",
+databaseURL: "ضع_databaseURL",
+projectId: "ضع_projectId",
+storageBucket: "ضع_storageBucket",
+messagingSenderId: "ضع_senderId",
+appId: "ضع_appId"
+};
 
-        let user = null, currentMedia = null;
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+const storage = firebase.storage();
 
-        // --- نظام تسجيل الدخول ---
-        function login() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).then(res => {
-                user = res.user;
-                setupUser(user);
-            });
-        }
+let currentUser = null;
 
-        function setupUser(u) {
-            // حفظ بيانات المستخدم في السيرفر ليكون قابلاً للبحث
-            db.ref('users/' + u.uid).update({
-                name: u.displayName,
-                photo: u.photoURL,
-                email: u.email,
-                lastSeen: firebase.database.ServerValue.TIMESTAMP
-            });
-            document.getElementById('auth-gate').style.display = 'none';
-            checkUrlParams();
-            loadFeed();
-        }
+function login(){
+const provider = new firebase.auth.GoogleAuthProvider();
+auth.signInWithPopup(provider);
+}
 
-        auth.onAuthStateChanged(u => { if(u) setupUser(u); });
+auth.onAuthStateChanged(user=>{
+if(user){
+currentUser = user;
+document.getElementById("login").style.display="none";
+document.getElementById("welcome").innerText="مرحباً "+user.displayName;
+loadPosts();
+}
+});
 
-        // --- نظام النشر العالمي (يظهر للجميع) ---
-        function loadMedia(e) {
-            const reader = new FileReader();
-            reader.onload = () => currentMedia = reader.result;
-            reader.readAsDataURL(e.target.files[0]);
-        }
+async function sendPost(){
+const text = document.getElementById("postText").value;
+const file = document.getElementById("mediaInput").files[0];
 
-        function publish() {
-            const txt = document.getElementById('post-txt').value;
-            if(!txt && !currentMedia) return;
-            db.ref('global_posts').push({
-                uid: user.uid,
-                name: user.displayName,
-                pfp: user.photoURL,
-                content: txt,
-                media: currentMedia,
-                time: firebase.database.ServerValue.TIMESTAMP
-            });
-            document.getElementById('post-txt').value = '';
-            currentMedia = null;
-        }
+if(!text && !file) return;
 
-        function loadFeed() {
-            db.ref('global_posts').limitToLast(50).on('value', snap => {
-                const feed = document.getElementById('feed');
-                feed.innerHTML = '';
-                snap.forEach(child => {
-                    const p = child.val();
-                    feed.innerHTML = `
-                        <div class="post">
-                            <div class="post-head" onclick="viewProfile('${p.uid}')">
-                                <img src="${p.pfp}">
-                                <b>${p.name}</b>
-                            </div>
-                            <div style="font-size:0.95rem;">${p.content}</div>
-                            ${p.media ? `<img src="${p.media}" class="post-media">` : ''}
-                        </div>
-                    ` + feed.innerHTML;
-                });
-            });
-        }
+let mediaURL=null;
+let mediaType=null;
 
-        // --- نظام الملف الشخصي والروابط (u=UID) ---
-        function viewProfile(uid) {
-            window.history.pushState({}, '', '?u=' + uid);
-            renderProfile(uid);
-            goTab('profile');
-        }
+if(file){
+const ref = storage.ref("media/"+Date.now()+"_"+file.name);
+await ref.put(file);
+mediaURL = await ref.getDownloadURL();
+mediaType = file.type.startsWith("video") ? "video":"image";
+}
 
-        function renderProfile(uid) {
-            db.ref('users/' + uid).once('value', snap => {
-                const d = snap.val();
-                document.getElementById('pf-img').src = d.photo;
-                document.getElementById('pf-name').innerText = d.name;
-                document.getElementById('pf-bio').innerText = d.bio || "لا يوجد وصف..";
-                
-                // إظهار زر التعديل فقط إذا كان هذا حسابي
-                document.getElementById('edit-trigger').style.display = (user.uid === uid) ? 'block' : 'none';
-            });
-        }
+db.ref("posts").push({
+uid: currentUser.uid,
+author: currentUser.displayName,
+text: text || "",
+mediaURL,
+mediaType,
+likes:0,
+time: firebase.database.ServerValue.TIMESTAMP
+});
 
-        function checkUrlParams() {
-            const params = new URLSearchParams(window.location.search);
-            const u = params.get('u');
-            if(u) renderProfile(u);
-        }
+document.getElementById("postText").value="";
+document.getElementById("mediaInput").value="";
+}
 
-        // --- تعديل الملف الشخصي ---
-        function openEdit() {
-            document.getElementById('edit-modal').style.display = 'flex';
-            document.getElementById('edit-name').value = user.displayName;
-        }
+function addLike(id,likes){
+db.ref("posts/"+id).update({likes:likes+1});
+}
 
-        function saveProfile() {
-            const newName = document.getElementById('edit-name').value;
-            const newBio = document.getElementById('edit-bio').value;
-            db.ref('users/' + user.uid).update({ name: newName, bio: newBio });
-            document.getElementById('edit-modal').style.display = 'none';
-            renderProfile(user.uid);
-        }
+function sendComment(id){
+const input = document.getElementById("c_"+id);
+if(!input.value) return;
 
-        // --- نظام البحث ---
-        function searchUsers() {
-            const q = document.getElementById('search-input').value.toLowerCase();
-            const resDiv = document.getElementById('search-results');
-            if(!q) { resDiv.innerHTML = ''; return; }
+db.ref("posts/"+id+"/comments").push({
+user: currentUser.displayName,
+text: input.value
+});
 
-            db.ref('users').orderByChild('name').startAt(q).limitToFirst(5).once('value', snap => {
-                resDiv.innerHTML = '';
-                snap.forEach(c => {
-                    const u = c.val();
-                    resDiv.innerHTML += `
-                        <div style="padding:10px; border-bottom:1px solid #222; display:flex; align-items:center; gap:10px;" onclick="viewProfile('${c.key}')">
-                            <img src="${u.photo}" width="30" style="border-radius:50%">
-                            <span>${u.name}</span>
-                        </div>`;
-                });
-            });
-        }
+input.value="";
+}
 
-        function goTab(id, btn) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('p-' + id).classList.add('active');
-            if(btn) {
-                document.querySelectorAll('.dock-btn').forEach(d => d.classList.remove('active'));
-                btn.classList.add('active');
-            }
-        }
+function loadPosts(){
+db.ref("posts").on("value",snap=>{
+const feed=document.getElementById("feed");
+feed.innerHTML="";
+snap.forEach(child=>{
+const p=child.val();
+const id=child.key;
 
-        function goMyProfile(btn) {
-            viewProfile(user.uid);
-            goTab('profile', btn);
-        }
-    </script>
+let media="";
+if(p.mediaURL){
+if(p.mediaType==="video"){
+media=`<video src="${p.mediaURL}" controls></video>`;
+}else{
+media=`<img src="${p.mediaURL}">`;
+}
+}
+
+let comments="";
+if(p.comments){
+Object.values(p.comments).forEach(c=>{
+comments+=`<div class="comment"><b>${c.user}:</b> ${c.text}</div>`;
+});
+}
+
+feed.innerHTML=
+`<div class="card">
+<b>${p.author}</b>
+<p>${p.text}</p>
+${media}
+<div class="like" onclick="addLike('${id}',${p.likes||0})">
+❤️ ${p.likes||0}
+</div>
+
+<div style="margin-top:10px">
+${comments}
+<input id="c_${id}" placeholder="اكتب تعليق">
+<button onclick="sendComment('${id}')">↩</button>
+</div>
+</div>` + feed.innerHTML;
+
+});
+});
+}
+</script>
 </body>
 </html>
