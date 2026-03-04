@@ -1,17 +1,284 @@
-body { font-family:'Segoe UI',sans-serif; margin:0; background:#050505; color:#fff; display:flex; height:100vh; overflow:hidden; }
-.sidebar { width:260px; background:#121212; border-left:1px solid #222; padding:20px 10px; display:flex; flex-direction:column; }
-.main { flex:1; overflow-y:auto; padding:20px; }
-.create-post { background:#121212; padding:15px; border-radius:15px; border:1px solid #00ffcc; margin-bottom:20px; display:flex; flex-direction:column; gap:10px; }
-.create-post textarea { background:transparent; border:1px solid #222; border-radius:10px; padding:5px; color:#fff; outline:none; resize:none; width:100%; }
-.create-post input[type=file] { background:#222; border:none; color:#fff; padding:5px; border-radius:10px; }
-.publish-row { display:flex; justify-content:flex-end; }
-.publish-row button { background:#00ffcc; border:none; padding:8px 20px; border-radius:15px; cursor:pointer; font-weight:bold; }
-.card { background:#121212; border:1px solid #222; border-radius:15px; padding:15px; margin-bottom:15px; }
-.card img, .card video { width:100%; border-radius:10px; margin-top:10px; }
-.like { cursor:pointer; margin-top:10px; }
-.comments-section { margin-top:10px; border-top:1px solid #222; padding-top:10px; }
-.comment-input-area { display:flex; gap:10px; margin-top:5px; }
-.comment-input-area input { flex:1; padding:5px; border-radius:10px; background:#000; border:1px solid #222; color:#fff; }
-.comment-input-area button { border:none; padding:5px 10px; border-radius:10px; background:#00ffcc; cursor:pointer; }
-.stories-bar { display:flex; gap:10px; margin-top:15px; overflow-x:auto; padding-bottom:10px; }
-.stories-bar div { flex:0 0 auto; }
+/* ===========================
+   Variables & Root
+=========================== */
+:root {
+    --bg: #050505;
+    --surf: #121212;
+    --pri: #00ffcc;
+    --sec: #bc13fe;
+    --txt: #ffffff;
+    --brd: #222222;
+    --hover: #00ffa0;
+    --shadow: rgba(0, 0, 0, 0.5);
+    --story-border: linear-gradient(45deg, #00ffcc, #bc13fe);
+}
+
+/* ===========================
+   Global Styles
+=========================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--txt);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+}
+
+img, video {
+    border-radius: 10px;
+    max-width: 100%;
+    display: block;
+}
+
+/* ===========================
+   Sidebar
+=========================== */
+.sidebar {
+    width: 260px;
+    background: var(--surf);
+    border-left: 1px solid var(--brd);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sidebar h2 {
+    text-align: center;
+    color: var(--pri);
+    font-size: 1.5rem;
+}
+
+#login button {
+    width: 100%;
+    padding: 12px;
+    background: var(--sec);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    transition: transform 0.3s;
+}
+
+#login button:hover {
+    transform: scale(1.05);
+    background: linear-gradient(45deg, #00ffcc, #bc13fe);
+}
+
+#welcome {
+    text-align: center;
+    color: var(--pri);
+    font-weight: bold;
+}
+
+/* ===========================
+   Stories
+=========================== */
+.stories-bar {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+.stories-bar div {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.2s, border 0.3s;
+}
+
+.stories-bar div img,
+.stories-bar div video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.stories-bar div:hover {
+    transform: scale(1.1);
+    border: 2px solid var(--pri);
+}
+
+/* ===========================
+   Main / Feed
+=========================== */
+.main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+/* Create Post */
+.create-post {
+    background: var(--surf);
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid var(--pri);
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.create-post textarea {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--brd);
+    color: #fff;
+    padding: 10px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    resize: none;
+}
+
+.create-post input[type="file"] {
+    color: #fff;
+}
+
+.publish-row {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.publish-row button {
+    background: var(--pri);
+    color: #000;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+
+.publish-row button:hover {
+    transform: scale(1.05);
+}
+
+/* Post Card */
+.card {
+    background: var(--surf);
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid var(--brd);
+    margin-bottom: 25px;
+    box-shadow: 0 10px 25px var(--shadow);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card b {
+    color: var(--pri);
+    font-size: 1rem;
+}
+
+.card p {
+    margin: 10px 0;
+    line-height: 1.4;
+}
+
+.card img, .card video {
+    margin-top: 10px;
+}
+
+/* Actions: Likes + Comments */
+.like {
+    margin-top: 15px;
+    cursor: pointer;
+    color: var(--pri);
+    transition: transform 0.2s, color 0.3s;
+}
+
+.like:hover {
+    transform: scale(1.2);
+    color: #ff0055;
+}
+
+/* Comments */
+.comments-section {
+    margin-top: 15px;
+    border-top: 1px solid #222;
+    padding-top: 10px;
+}
+
+.comment {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #222;
+    padding-bottom: 3px;
+}
+
+.comment b {
+    color: var(--sec);
+}
+
+.comment-input-area {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.comment-input-area input {
+    flex: 1;
+    background: #000;
+    border: 1px solid var(--brd);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 15px;
+    outline: none;
+}
+
+.comment-input-area button {
+    background: var(--pri);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    padding: 5px 12px;
+    transition: transform 0.2s;
+}
+
+.comment-input-area button:hover {
+    transform: scale(1.1);
+}
+
+/* ===========================
+   Responsive
+=========================== */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 10px;
+        gap: 10px;
+    }
+    .main {
+        padding: 10px;
+    }
+}
