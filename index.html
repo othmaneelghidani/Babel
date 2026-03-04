@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Babel Pro</title>
+<title>Babel 16 Pro</title>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -11,11 +11,11 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
 <style>
-body{margin:0;background:#0a0a0a;color:#fff;font-family:sans-serif}
+body{margin:0;background:#050505;color:#fff;font-family:sans-serif}
 #login{position:fixed;inset:0;background:#000;display:flex;justify-content:center;align-items:center;z-index:999}
 button{cursor:pointer}
 .main{padding:15px;max-width:600px;margin:auto}
-.card{background:#111;padding:15px;border-radius:15px;margin-bottom:20px}
+.card{background:#121212;padding:15px;border-radius:15px;margin-bottom:20px;border:1px solid #222}
 textarea,input{width:100%;background:#000;border:1px solid #222;color:#fff;padding:10px;border-radius:10px}
 .pub{background:#00ffcc;color:#000;border:none;padding:10px 20px;border-radius:20px;margin-top:10px}
 .like{cursor:pointer;margin-top:10px;display:inline-block}
@@ -32,7 +32,6 @@ img,video{width:100%;border-radius:10px;margin-top:10px}
 </div>
 
 <div class="main">
-
 <h2 id="welcome"></h2>
 
 <div class="card">
@@ -42,21 +41,21 @@ img,video{width:100%;border-radius:10px;margin-top:10px}
 </div>
 
 <div id="feed"></div>
-
 </div>
 
 <script>
 const firebaseConfig = {
-apiKey: "ضع_apiKey_هنا",
-authDomain: "ضع_authDomain",
-databaseURL: "ضع_databaseURL",
-projectId: "ضع_projectId",
-storageBucket: "ضع_storageBucket",
-messagingSenderId: "ضع_senderId",
-appId: "ضع_appId"
+apiKey: "AIzaSyCLEkACbZT1gMs9BGkiuxJxSvsHJGKTryk",
+authDomain: "babel-e12d7.firebaseapp.com",
+databaseURL: "https://babel-e12d7-default-rtdb.firebaseio.com",
+projectId: "babel-e12d7",
+storageBucket: "babel-e12d7.firebasestorage.app",
+messagingSenderId: "825559802990",
+appId: "1:825559802990:web:07446bfa45edf3358d327f"
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const auth = firebase.auth();
 const db = firebase.database();
 const storage = firebase.storage();
@@ -64,20 +63,30 @@ const storage = firebase.storage();
 let currentUser = null;
 
 function login(){
-const provider = new firebase.auth.GoogleAuthProvider();
-auth.signInWithPopup(provider);
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithRedirect(provider);
 }
 
+auth.getRedirectResult().then(result => {
+  if(result.user){
+    currentUser = result.user;
+  }
+}).catch(error=>{
+  console.log(error);
+});
+
 auth.onAuthStateChanged(user=>{
-if(user){
-currentUser = user;
-document.getElementById("login").style.display="none";
-document.getElementById("welcome").innerText="مرحباً "+user.displayName;
-loadPosts();
-}
+  if(user){
+    currentUser = user;
+    document.getElementById("login").style.display="none";
+    document.getElementById("welcome").innerText="مرحباً "+user.displayName;
+    loadPosts();
+  }
 });
 
 async function sendPost(){
+if(!currentUser) return;
+
 const text = document.getElementById("postText").value;
 const file = document.getElementById("mediaInput").files[0];
 
