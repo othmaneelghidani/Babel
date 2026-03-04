@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Babel 16 Pro</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+</head>
+<body>
+
+<!-- Login -->
+<div id="login">
+  <button onclick="login()">تسجيل الدخول عبر Google</button>
+</div>
+
+<div class="main">
+  <h2 id="welcome"></h2>
+
+  <!-- Stories -->
+  <div id="storiesBar"></div>
+
+  <!-- Create Post -->
+  <div class="card">
+    <textarea id="postText" placeholder="اكتب منشورك..."></textarea>
+    <input type="file" id="mediaInput" accept="image/*,video/*">
+    <button class="pub" onclick="sendPost()">نشر</button>
+  </div>
+
+  <!-- Feed -->
+  <div id="feed"></div>
+</div>
+
+<!-- Reels -->
+<div id="reelsPage"></div>
+
+<!-- Messenger -->
+<div id="messenger">
+  <div id="usersList" style="max-height:200px;overflow:auto;"></div>
+  <div id="chatBox">
+    <h3 id="chatHeader"></h3>
+    <div id="chatMessages" style="height:300px;overflow:auto;"></div>
+    <input type="text" id="msgInput" placeholder="اكتب رسالة...">
+    <button onclick="sendMessage()">إرسال</button>
+  </div>
+</div>
+
+<!-- Profile -->
+<div id="profilePage">
+  <img id="profilePhoto" src="">
+  <h2 id="profileName"></h2>
+  <button id="followBtn"></button>
+  <div id="followersCount"></div>
+  <div id="followingCount"></div>
+  <div id="profilePosts"></div>
+  <button onclick="closeProfile()">إغلاق</button>
+</div>
+
+<!-- Video Call -->
+<div id="callUI" style="display:none;">
+  <video id="localVideo" autoplay muted playsinline></video>
+  <button onclick="endCall()">❌ إنهاء المكالمة</button>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
