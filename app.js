@@ -59,5 +59,3 @@ function viewStory(url,type){const overlay=document.createElement("div");overlay
 
 // Likes & Comments
 function addLike(id,likes){db.ref("posts/"+id).update({likes:likes+1});}
-
-// Firebase Rules (ضع هذه القواعد في Console)
