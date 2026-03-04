@@ -4,259 +4,69 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Babel 16 Pro</title>
-
+<link rel="stylesheet" href="style.css">
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-
-<style>
-body{margin:0;background:#050505;color:#fff;font-family:sans-serif}
-button{cursor:pointer}
-#login{position:fixed;inset:0;background:#000;display:flex;justify-content:center;align-items:center;z-index:999}
-.main{padding:15px;max-width:600px;margin:auto}
-.card{background:#121212;padding:15px;border-radius:15px;margin-bottom:20px;border:1px solid #222}
-textarea,input{width:100%;background:#000;border:1px solid #222;color:#fff;padding:10px;border-radius:10px}
-.pub{background:#00ffcc;color:#000;border:none;padding:10px 20px;border-radius:20px;margin-top:10px}
-.like{cursor:pointer;margin-top:10px;display:inline-block}
-img,video{width:100%;border-radius:10px;margin-top:10px}
-.comment{font-size:0.9rem;margin-top:5px}
-#reelsPage .reel{height:100vh;scroll-snap-align:start;position:relative}
-#reelsPage video{height:100%;width:100%;object-fit:cover}
-#notifyBox{position:fixed;top:20px;left:20px;z-index:6000}
-</style>
 </head>
 <body>
 
+<!-- Login -->
 <div id="login">
-<button onclick="login()" style="padding:20px 40px;background:#00ffcc;border:none;border-radius:10px;font-weight:bold;">
-تسجيل الدخول عبر Google
-</button>
+  <button onclick="login()">تسجيل الدخول عبر Google</button>
 </div>
 
 <div class="main">
-<h2 id="welcome"></h2>
+  <h2 id="welcome"></h2>
 
-<button onclick="openReels()" style="background:#bc13fe;color:#fff;border:none;padding:10px 20px;border-radius:20px;margin-bottom:15px;">
-🎞️ مشاهدة Reels
-</button>
+  <!-- Stories -->
+  <div id="storiesBar"></div>
 
-<button onclick="openMessenger()" style="background:#00ffcc;color:#000;border:none;padding:10px 20px;border-radius:20px;margin-bottom:15px;">
-💬 Messenger
-</button>
+  <!-- Create Post -->
+  <div class="card">
+    <textarea id="postText" placeholder="اكتب منشورك..."></textarea>
+    <input type="file" id="mediaInput" accept="image/*,video/*">
+    <button class="pub" onclick="sendPost()">نشر</button>
+  </div>
 
-<div class="card">
-<textarea id="postText" placeholder="اكتب منشورك..."></textarea>
-<input type="file" id="mediaInput" accept="image/*,video/*">
-<button class="pub" onclick="sendPost()">نشر</button>
-</div>
-
-<div id="feed"></div>
+  <div id="feed"></div>
 </div>
 
 <!-- Reels -->
-<div id="reelsPage" style="display:none; position:fixed; inset:0; background:#000; z-index:2000; overflow-y:scroll; scroll-snap-type:y mandatory;"></div>
+<div id="reelsPage"></div>
 
 <!-- Messenger -->
-<div id="messenger" style="display:none; position:fixed; inset:0; background:#000; z-index:3000;">
-<div style="display:flex;height:100%;">
-<div id="usersList" style="width:35%; background:#111; overflow-y:auto;"></div>
-<div style="flex:1; display:flex; flex-direction:column;">
-<div id="chatHeader" style="padding:10px;background:#222;"></div>
-<div id="chatMessages" style="flex:1; overflow-y:auto; padding:10px;"></div>
-<div style="display:flex; padding:10px;">
-<input id="msgInput" style="flex:1;">
-<button onclick="sendMessage()">إرسال</button>
+<div id="messenger">
+  <div id="usersList" style="max-height:200px;overflow:auto;"></div>
+  <div id="chatBox">
+    <h3 id="chatHeader"></h3>
+    <div id="chatMessages" style="height:300px;overflow:auto;"></div>
+    <input type="text" id="msgInput" placeholder="اكتب رسالة...">
+    <button onclick="sendMessage()">إرسال</button>
+  </div>
 </div>
-</div>
-</div>
-<button onclick="closeMessenger()" style="position:absolute;top:10px;right:10px;background:red;border:none;padding:10px;border-radius:50%;">❌</button>
+
+<!-- Profile -->
+<div id="profilePage">
+  <img id="profilePhoto" src="">
+  <h2 id="profileName"></h2>
+  <button id="followBtn"></button>
+  <div id="followersCount"></div>
+  <div id="followingCount"></div>
+  <div id="profilePosts"></div>
+  <button onclick="closeProfile()">إغلاق</button>
 </div>
 
 <!-- Video Call -->
-<div id="callUI" style="display:none; position:fixed; inset:0; background:#000; z-index:5000;">
-<video id="remoteVideo" autoplay playsinline style="width:100%; height:50%; object-fit:cover;"></video>
-<video id="localVideo" autoplay muted playsinline style="width:100%; height:50%; object-fit:cover;"></video>
-<div style="position:absolute; bottom:40px; left:50%; transform:translateX(-50%);">
-<button onclick="endCall()" style="background:red;border:none;padding:20px;border-radius:50%;">❌</button>
-</div>
+<div id="callUI" style="display:none;">
+  <video id="localVideo" autoplay muted playsinline></video>
+  <button onclick="endCall()">❌ إنهاء المكالمة</button>
 </div>
 
 <!-- Notifications -->
 <div id="notifyBox"></div>
 
-<script>
-const firebaseConfig = {
-apiKey: "AIzaSyCLEkACbZT1gMs9BGkiuxJxSvsHJGKTryk",
-authDomain: "babel-e12d7.firebaseapp.com",
-databaseURL: "https://babel-e12d7-default-rtdb.firebaseio.com",
-projectId: "babel-e12d7",
-storageBucket: "babel-e12d7.firebasestorage.app",
-messagingSenderId: "825559802990",
-appId: "1:825559802990:web:07446bfa45edf3358d327f"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
-const storage = firebase.storage();
-let currentUser=null;
-
-// -------- Login --------
-function login(){
-const provider = new firebase.auth.GoogleAuthProvider();
-auth.signInWithRedirect(provider);
-}
-
-auth.getRedirectResult().then(result=>{
-if(result.user) currentUser=result.user;
-}).catch(console.log);
-
-auth.onAuthStateChanged(user=>{
-if(user){
-currentUser=user;
-document.getElementById("login").style.display="none";
-document.getElementById("welcome").innerText="مرحباً "+user.displayName;
-
-// save user & online status
-db.ref("users/"+user.uid).set({name:user.displayName,photo:user.photoURL||""});
-const userStatusRef=db.ref("status/"+user.uid);
-userStatusRef.set({online:true,lastSeen:firebase.database.ServerValue.TIMESTAMP});
-userStatusRef.onDisconnect().set({online:false,lastSeen:firebase.database.ServerValue.TIMESTAMP});
-
-loadPosts();
-}
-});
-
-// -------- Posts --------
-async function sendPost(){
-if(!currentUser) return;
-const text=document.getElementById("postText").value;
-const file=document.getElementById("mediaInput").files[0];
-if(!text && !file) return;
-
-let mediaURL=null, mediaType=null;
-if(file){
-const ref=storage.ref("media/"+Date.now()+"_"+file.name);
-await ref.put(file);
-mediaURL=await ref.getDownloadURL();
-mediaType=file.type.startsWith("video")?"video":"image";
-}
-
-db.ref("posts").push({
-uid:currentUser.uid,author:currentUser.displayName,text:text||"",mediaURL,mediaType,likes:0,time:firebase.database.ServerValue.TIMESTAMP
-});
-
-document.getElementById("postText").value="";
-document.getElementById("mediaInput").value="";
-}
-
-function addLike(id,likes){db.ref("posts/"+id).update({likes:likes+1});}
-function sendComment(id){const input=document.getElementById("c_"+id);if(!input.value)return;db.ref("posts/"+id+"/comments").push({user:currentUser.displayName,text:input.value});input.value="";}
-
-function loadPosts(){
-db.ref("posts").on("value",snap=>{
-const feed=document.getElementById("feed");feed.innerHTML="";
-snap.forEach(child=>{
-const p=child.val();const id=child.key;
-let media="";if(p.mediaURL)media=p.mediaType==="video"?`<video src="${p.mediaURL}" controls></video>`:`<img src="${p.mediaURL}">`;
-let comments="";if(p.comments)Object.values(p.comments).forEach(c=>{comments+=`<div class="comment"><b>${c.user}:</b> ${c.text}</div>`});
-feed.innerHTML=`<div class="card"><b>${p.author}</b><p>${p.text}</p>${media}<div class="like" onclick="addLike('${id}',${p.likes||0})">❤️ ${p.likes||0}</div><div style="margin-top:10px">${comments}<input id="c_${id}" placeholder="اكتب تعليق"><button onclick="sendComment('${id}')">↩</button></div></div>`+feed.innerHTML;
-});
-});
-}
-
-// -------- Reels --------
-function openReels(){document.getElementById("reelsPage").style.display="block";loadReels();}
-function closeReels(){document.getElementById("reelsPage").style.display="none";document.getElementById("reelsPage").innerHTML="";}
-function loadReels(){
-db.ref("posts").once("value",snap=>{
-const reelsPage=document.getElementById("reelsPage");
-reelsPage.innerHTML=`<button onclick="closeReels()" style="position:fixed;top:20px;right:20px;background:red;border:none;padding:10px;border-radius:50%;z-index:3000;">❌</button>`;
-snap.forEach(child=>{
-const p=child.val();
-if(p.mediaType==="video"){
-reelsPage.innerHTML+=`<div class="reel"><video src="${p.mediaURL}" autoplay muted loop playsinline></video><div style="position:absolute;bottom:40px;right:20px;color:#fff;"><b>${p.author}</b><br>${p.text||""}</div></div>`;
-}
-});
-});
-}
-
-// -------- Messenger --------
-let currentChatId=null; let chattingWith=null;
-function openMessenger(){document.getElementById("messenger").style.display="block";loadUsers();}
-function closeMessenger(){document.getElementById("messenger").style.display="none";document.getElementById("chatMessages").innerHTML="";}
-function loadUsers(){
-db.ref("users").once("value",snap=>{
-const list=document.getElementById("usersList");list.innerHTML="";
-snap.forEach(child=>{
-const u=child.val();
-if(child.key!==currentUser.uid){
-db.ref("status/"+child.key).on("value",ssnap=>{
-const status=ssnap.val();const isOnline=status?.online?"🟢 متصل":"⚫ غير متصل";
-list.innerHTML+=`<div onclick="openChat('${child.key}','${u.name}')" style="padding:15px;border-bottom:1px solid #222;cursor:pointer;"><b>${u.name}</b><br><small>${isOnline}</small></div>`;
-});
-}
-});
-});
-}
-
-function openChat(uid,name){
-chattingWith=uid;
-currentChatId=[currentUser.uid,uid].sort().join("_");
-document.getElementById("chatHeader").innerHTML=name+` <button onclick="followUser('${chattingWith}')" style="margin-right:10px;background:#bc13fe;border:none;padding:5px 10px;border-radius:10px;">➕ متابعة</button><button onclick="startCall()" style="margin-right:10px;background:#00ffcc;border:none;padding:5px 10px;border-radius:10px;">📞</button>`;
-document.getElementById("chatMessages").innerHTML="";
-db.ref("chats/"+currentChatId+"/messages").off();
-db.ref("chats/"+currentChatId+"/messages").on("child_added",snap=>{
-const m=snap.val();
-const side=m.sender===currentUser.uid?"right":"left";
-if(m.sender!==currentUser.uid)showNotification("📩 رسالة جديدة");
-document.getElementById("chatMessages").innerHTML+=`<div style="text-align:${side}; margin:5px 0;"><span style="background:${side==="right"?"#00ffcc":"#333"};padding:8px 12px;border-radius:15px;display:inline-block;">${m.text}</span><button onclick="likeMessage('${snap.key}')" style="background:none;border:none;color:#ff0055;">❤️</button></div>`;
-});
-}
-
-function sendMessage(){
-const text=document.getElementById("msgInput").value;
-if(!text || !currentChatId)return;
-db.ref("chats/"+currentChatId+"/participants").set({[currentUser.uid]:true,[chattingWith]:true});
-db.ref("chats/"+currentChatId+"/messages").push({sender:currentUser.uid,text,time:firebase.database.ServerValue.TIMESTAMP});
-document.getElementById("msgInput").value="";
-}
-
-function followUser(uid){db.ref("followers/"+uid+"/"+currentUser.uid).set(true);showNotification("تمت المتابعة ✅");}
-function likeMessage(msgId){db.ref("chats/"+currentChatId+"/messages/"+msgId+"/likes").transaction(l=>(l||0)+1);}
-
-// -------- Notifications --------
-function showNotification(text){
-const box=document.getElementById("notifyBox");
-const div=document.createElement("div");
-div.innerText=text;div.style.background="#00ffcc";div.style.color="#000";div.style.padding="10px 15px";div.style.marginBottom="10px";div.style.borderRadius="10px";
-box.appendChild(div);
-setTimeout(()=>{div.remove();},3000);
-}
-
-// -------- Video Call (1:1) --------
-let localStream,peerConnection,callRef;
-const servers={iceServers:[{urls:"stun:stun.l.google.com:19302"}]};
-async function startCall(){
-callRef=db.ref("calls/"+currentChatId);
-localStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
-document.getElementById("callUI").style.display="block";
-document.getElementById("localVideo").srcObject=localStream;
-peerConnection=new RTCPeerConnection(servers);
-localStream.getTracks().forEach(track=>peerConnection.addTrack(track,localStream));
-peerConnection.ontrack=event=>{document.getElementById("remoteVideo").srcObject=event.streams[0];};
-peerConnection.onicecandidate=event=>{if(event.candidate){callRef.child("offerCandidates").push(event.candidate.toJSON());}};
-const offer=await peerConnection.createOffer();await peerConnection.setLocalDescription(offer);
-await callRef.set({offer:{type:offer.type,sdp:offer.sdp},caller:currentUser.uid,receiver:chattingWith});
-callRef.on("value",async snap=>{const data=snap.val();if(data?.answer && !peerConnection.currentRemoteDescription){const answer=new RTCSessionDescription(data.answer);await peerConnection.setRemoteDescription(answer);}});
-callRef.child("answerCandidates").on("child_added",snap=>{peerConnection.addIceCandidate(new RTCIceCandidate(snap.val()));});
-}
-
-db.ref("calls").on("child_added",async snap=>{const data=snap.val();if(data.receiver===currentUser.uid){callRef=snap.ref;localStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});document.getElementById("callUI").style.display="block";document.getElementById("localVideo").srcObject=localStream;peerConnection=new RTCPeerConnection(servers);localStream.getTracks().forEach(track=>peerConnection.addTrack(track,localStream));peerConnection.ontrack=event=>{document.getElementById("remoteVideo").srcObject=event.streams[0];};peerConnection.onicecandidate=event=>{if(event.candidate){callRef.child("answerCandidates").push(event.candidate.toJSON());}};const offerDesc=new RTCSessionDescription(data.offer);await peerConnection.setRemoteDescription(offerDesc);const answer=await peerConnection.createAnswer();await peerConnection.setLocalDescription(answer);await callRef.update({answer:{type:answer.type,sdp:answer.sdp}});}});
-
-function endCall(){if(localStream){localStream.getTracks().forEach(t=>t.stop());}if(peerConnection){peerConnection.close();}if(callRef){callRef.remove();}document.getElementById("callUI").style.display="none";}
-</script>
-
+<script src="app.js"></script>
 </body>
 </html>
